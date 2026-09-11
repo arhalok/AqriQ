@@ -109,6 +109,24 @@
         adminTitle: 'Operations Control Tower & System Architecture',
         adminSub: 'Demand-driven coordination replacing speculative intermediary trading with predictable, low-waste physical distribution.',
 
+        // Buyer Demand Board
+        buyerDemandTitle: 'Live Direct Buyer Demand Board (सीधे खरीदार मांग)',
+        buyerDemandSub: 'Verified purchase orders from supermarkets, food processors & consumer housing societies with 100% bank escrow guarantee.',
+        acceptDemandBtn: '🤝 Accept Offer & Sell Produce',
+        demandGainPill: 'Higher than Mandi',
+
+        // Distress Sale Protection Shield
+        distressTitle: 'Automated Distress Sale & Price Crash Protection Shield',
+        distressSub: 'APMC Mandi prices crashed? Do not sell at a loss! Store in nearby solar cold room and receive 70% instant e-NWR cash advance in your bank.',
+        btnClaimShield: '🛡️ Store in Cold Room & Get 70% Advance Loan',
+
+        // Society Group Buy & Transparency
+        societyGroupBuyTitle: 'Apartment & Neighborhood Group-Buy Hub',
+        societyGroupBuySub: 'Pool orders with your society neighbors to unlock wholesale farmgate rates with zero retailer markups.',
+        btnChangeSociety: 'Change Society Hub',
+        priceTransparencyTitle: 'Where Does Every ₹100 of Yours Go?',
+        priceTransparencySub: 'Transparent breakdown proving how 70%+ of your rupee goes directly to the farmer who harvested it.',
+
         // Voice Message
         voiceAdvisory: 'Welcome to FarmFlow. Today, Tomato Grade A is selling at 26 rupees directly to FreshMart. You take home 23 rupees 50 paise in your bank account, compared to only 11 rupees in Kolar Mandi.'
       },
@@ -211,6 +229,24 @@
         adminTitle: 'ऑपरेशंस कंट्रोल टॉवर एवं सिस्टम आर्किटेक्चर',
         adminSub: 'पारंपरिक बिचौलियों की व्यवस्था को हटाकर मांग-आधारित प्रत्यक्ष समन्वय: किसान की आय दुगुनी और खाद्य बर्बादी न्यूनतम।',
 
+        // Buyer Demand Board
+        buyerDemandTitle: 'लाइव सीधे खरीदार मांग बोर्ड (Live Buyer Demands)',
+        buyerDemandSub: 'सुपरमार्केट्स, खाद्य प्रसंस्करण इकाइयों एवं सोसायटियों से सत्यापित खरीद मांग। 100% बैंक एस्क्रो गारंटी।',
+        acceptDemandBtn: '🤝 सौदा स्वीकार करें व फसल बेचें',
+        demandGainPill: 'मंडी से अधिक',
+
+        // Distress Sale Protection Shield
+        distressTitle: 'संकट बिक्री सुरक्षा (डिस्ट्रेस सेल शील्ड) - दाम गिरने से बचाव',
+        distressSub: 'मंडी में दाम गिर गए हैं? घाटे में न बेचें! सौर कोल्ड रूम में फसल रखें और 70% तुरंत अग्रिम ऋण (e-NWR) खाते में पाएं।',
+        btnClaimShield: '🛡️ कोल्ड स्टोरेज में रखें एवं 70% अग्रिम ऋण पाएं',
+
+        // Society Group Buy & Transparency
+        societyGroupBuyTitle: 'हाउसिंग सोसायटी सामूहिक खरीद हब (Group-Buy)',
+        societyGroupBuySub: 'सोसायटी के पड़ोसियों के साथ मिलकर सीधे खेत से थोक भाव पर ताजी सब्जियां मंगवाएं।',
+        btnChangeSociety: 'सोसायटी हब बदलें',
+        priceTransparencyTitle: 'आपका ₹100 वास्तव में कहाँ जाता है?',
+        priceTransparencySub: 'पारदर्शी ब्योरा जो साबित करता है कि आपके पैसे का 70%+ हिस्सा सीधे किसान को मिलता है।',
+
         // Voice Message
         voiceAdvisory: 'फार्मफ्लो में आपका स्वागत है। आज टमाटर ग्रेड-ए 26 रुपये में सीधे फ्रेशमार्ट को बिक रहा है। बिचौलियों को हटाकर आपके बैंक में 23 रुपये 50 पैसे आएंगे, जबकि मंडी में केवल 11 रुपये मिलते।'
       },
@@ -312,6 +348,24 @@
         // Control Tower (Admin)
         adminTitle: 'ಕಾರ್ಯಾಚರಣೆ ನಿಯಂತ್ರಣ ಗೋಪುರ ಮತ್ತು ಸಿಸ್ಟಮ್ ಆರ್ಕಿಟೆಕ್ಚರ್',
         adminSub: 'ಮಧ್ಯವರ್ತಿಗಳನ್ನು ತಪ್ಪಿಸಿ ಬೇಡಿಕೆ ಆಧಾರಿತ ನೇರ ಸಮನ್ವಯ: ರೈತರ ಆದಾಯ ದುಪ್ಪಟ್ಟು, ಆಹಾರ ವ್ಯರ್ಥ ಶೂನ್ಯ.',
+
+        // Buyer Demand Board
+        buyerDemandTitle: 'ಲೈವ್ ನೇರ ಖರೀದಿದಾರ ಬೇಡಿಕೆ ಮಂಡಳಿ (Live Buyer Demands)',
+        buyerDemandSub: 'ಸೂಪರ್‌ಮಾರ್ಕೆಟ್‌ಗಳು, ಸಂಸ್ಕರಣಾ ಘಟಕಗಳು ಮತ್ತು ವಸತಿ ಸಮುಚ್ಚಯಗಳಿಂದ ದೃಢೀಕೃತ ಬೇಡಿಕೆಗಳು. 100% ಬ್ಯಾಂಕ್ ಎಸ್ಕ್ರೋ ಭದ್ರತೆ.',
+        acceptDemandBtn: '🤝 ಆಫರ್ ಒಪ್ಪಿ ಬೆಳೆ ಮಾರಿ',
+        demandGainPill: 'ಮಂಡಿಗಿಂತ ಹೆಚ್ಚು',
+
+        // Distress Sale Protection Shield
+        distressTitle: 'ಬೆಲೆ ಕುಸಿತ ರಕ್ಷಣಾ ಕವಚ (Distress Sale Shield)',
+        distressSub: 'ಮಂಡಿಯಲ್ಲಿ ಬೆಲೆ ಕುಸಿದಿದೆಯೇ? ನಷ್ಟದಲ್ಲಿ ಮಾರಬೇಡಿ! ಸೌರ ಕೋಲ್ಡ್ ರೂಮ್‌ನಲ್ಲಿರಿಸಿ ಮತ್ತು 70% ತಕ್ಷಣದ ಇ-ಎನ್‌ಡಬ್ಲ್ಯೂಆರ್ ಸಾಲ ಪಡೆಯಿರಿ.',
+        btnClaimShield: '🛡️ ಕೋಲ್ಡ್ ಸ್ಟೋರೇಜ್‌ನಲ್ಲಿರಿಸಿ ಮತ್ತು 70% ಮುಂಗಡ ಸಾಲ ಪಡೆಯಿರಿ',
+
+        // Society Group Buy & Transparency
+        societyGroupBuyTitle: 'ವಸತಿ ಸಮುಚ್ಚಯ ಸಾಮೂಹಿಕ ಖರೀದಿ ಹಬ್ (Group-Buy)',
+        societyGroupBuySub: 'ಮಧ್ಯವರ್ತಿಗಳ ಕಮಿಷನ್ ಇಲ್ಲದೆ ನೇರವಾಗಿ ತೋಟದಿಂದ ಸಗಟು ದರದಲ್ಲಿ ತಾಜಾ ತರಕಾರಿ ಪಡೆಯಲು ನೆರೆಹೊರೆಯವರೊಂದಿಗೆ ಸೇರಿ.',
+        btnChangeSociety: 'ಸೊಸೈಟಿ ಹಬ್ ಬದಲಾಯಿಸಿ',
+        priceTransparencyTitle: 'ನಿಮ್ಮ ಪ್ರತಿ ₹100 ಹಣ ಎಲ್ಲಿಗೆ ಹೋಗುತ್ತದೆ?',
+        priceTransparencySub: 'ನಿಮ್ಮ ಹಣದ 70%+ ಭಾಗ ನೇರವಾಗಿ ಕಷ್ಟಪಟ್ಟು ಬೆಳೆದ ರೈತನಿಗೆ ತಲುಪುತ್ತದೆ ಎಂದು ಸಾಬೀತುಪಡಿಸುವ ವಿವರ.',
 
         // Voice Message
         voiceAdvisory: 'ಫಾರ್ಮ್‌ಫ್ಲೋಗೆ ಸ್ವಾಗತ. ಇಂದು ಟೊಮ್ಯಾಟೊ ಗ್ರೇಡ್-ಎ ಫ್ರೆಶ್‌ಮಾರ್ಟ್‌ಗೆ 26 ರೂಪಾಯಿಗೆ ಮಾರಾಟವಾಗುತ್ತಿದೆ. ನಿಮ್ಮ ಬ್ಯಾಂಕ್‌ಗೆ 23 ರೂಪಾಯಿ 50 ಪೈಸೆ ಸಿಗುತ್ತದೆ, ಮಂಡಿಯಲ್ಲಿ ಕೇವಲ 11 ರೂಪಾಯಿ ಮಾತ್ರ.'

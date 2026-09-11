@@ -632,3 +632,136 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
 }
+
+/* ==========================================================================
+   Product Inline Price Transparency Mini-Breakdown
+   ========================================================================== */
+.transparency-breakdown-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin: 10px 0 14px 0;
+}
+
+.transparency-bar-wrap {
+  display: flex;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin: 6px 0;
+  background: #e2e8f0;
+}
+
+.t-bar-farmer { background: #16a34a; }
+.t-bar-reefer { background: #0284c7; }
+.t-bar-spoke { background: #f59e0b; }
+.t-bar-platform { background: #64748b; }
+
+.transparency-legend-mini {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.transparency-legend-mini span strong {
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   Housing Society Selector Pills
+   ========================================================================== */
+.society-selector-tray {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.society-pill-btn {
+  background: #ffffff;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.society-pill-btn:hover {
+  border-color: var(--primary-500);
+  background: #f0fdf4;
+}
+
+.society-pill-btn.active {
+  background: var(--primary-700);
+  color: #ffffff;
+  border-color: var(--primary-700);
+}
+
+/* ==========================================================================
+   Impact Summary Checkout Receipt Modal
+   ========================================================================== */
+.impact-checkout-card {
+  background: #ffffff;
+  border: 2px solid #16a34a;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.2);
+}
+
+.impact-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dcfce7;
+  color: #15803d;
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 12px;
+}
+
+.impact-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 18px 0;
+}
+
+.impact-stat-box {
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.impact-stat-box.green {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.impact-stat-val {
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  color: #166534;
+}
+
+.provenance-tag-box {
+  background: #f1f5f9;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 14px;
+}
+

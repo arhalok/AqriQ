@@ -30,6 +30,44 @@
       ]
     },
 
+    // e-NAM (National Agriculture Market) Last-Mile Village Spoke Extension
+    enamExtension: {
+      spokeId: 'eNAM-SPOKE-KA-KOLAR-04',
+      spokeName: 'Vokkaleri Village e-NAM Sub-Spoke (ग्राम पंचायत केंद्र)',
+      distanceKm: 3.2,
+      operatorFPO: 'GreenRoots Kisan Producer Co. (NABARD Supported)',
+      roleDescription: 'Powers the missing Last-Mile of e-NAM: Farmgate pickup, village digital Brix assaying, FPO aggregation for smallholders, and distress solar cold storage with instant DBT.',
+      nationalClearingRateRs: 26.00,
+      localApmcMandiRateRs: 11.00,
+      mspFloorRateRs: 18.50,
+      assayAccreditation: 'Govt. NABL Certified Digital Brix Refractometer & AI Leaf Scanner',
+      activeTradingLots: 14
+    },
+
+    // Colloquial Illiterate-Friendly Audio Voice Scripts (Hindi & English)
+    kisanVoiceAdvisories: {
+      hi: {
+        welcome: 'नमस्ते रमेश जी! फार्मफ्लो ई-नाम विलेज स्पोक में आपका स्वागत है। आज टमाटर का सीधा भाव 26 रुपये है, जबकि मंडी में केवल 11 रुपये मिल रहे हैं। अपनी फसल बेचने के लिए हरा बटन दबाएं।',
+        sell: 'फसल बेचें: यहाँ आप सीधे सुपरमार्केट और सोसायटियों को बिना किसी आढ़तिया कमीशन के अपनी फसल बेच सकते हैं। तुरंत पक्का बैंक भाव मिलेगा।',
+        demands: 'खरीदार मांगें: यहाँ देखें कि कौन सा खरीदार कितना माल खरीद रहा है और क्या भाव दे रहा है। एक क्लिक में सौदा पक्का करें।',
+        transport: 'खेत से गाड़ी बुलाएं: 15 मिनट में आपके खेत के दरवाजे पर ई-लोडर या पिकअप आ जाएगा। आपको मंडी जाने के लिए धक्के खाने की जरूरत नहीं है।',
+        weighbridge: 'डिजिटल धर्मकांटा: गाँव के स्पोक पर सटीक कंप्यूटर कांटा और मिठास जांच। तौल पर्ची कटते ही आपके बैंक खाते में तुरंत पूरे पैसे जमा हो जाएंगे।',
+        distress: 'सावधान! मंडी में आज दाम गिरकर 9 रुपये हो गए हैं। घाटे में न बेचें। सोलर कोल्ड रूम में फसल रखें और 70% अग्रिम पैसा अभी खाते में पाएं।',
+        doctor: 'फसल डॉक्टर: खराब या बीमार पत्ते की फोटो खींचें और 2 सेकंड में जैविक खाद और घरेलू उपचार जानें।',
+        storage: 'सोलर कोल्ड स्टोरेज: जब मंडी में भाव गिर जाए, तो फसल को गाँव के सोलर कोल्ड रूम में सुरक्षित रखें और भाव बढ़ने पर बेचें।'
+      },
+      en: {
+        welcome: 'Welcome Ramesh Patel. Today tomato direct rate is 26 rupees, compared to only 11 rupees in Mandi. Tap the green button to sell your harvest lot directly.',
+        sell: 'Sell Produce: Sell directly to supermarkets and housing societies with zero middlemen commissions and guaranteed bank payment.',
+        demands: 'Buyer Demands: View live purchase orders with locked bank escrow and guaranteed rates.',
+        transport: 'Book Farm Vehicle: Call an electric loader or refrigerated tempo to your farm gate in 15 minutes.',
+        weighbridge: 'Digital Weighbridge: Certified load-cell weighing and sugar assay at village spoke with instant bank DBT payout.',
+        distress: 'Price crash alert! APMC Mandi price dropped to 9 rupees. Store in solar cold room and receive 70% cash advance immediately.',
+        doctor: 'Crop Doctor: Scan diseased leaves to get instant ICAR certified organic and chemical cures.',
+        storage: 'Solar Cold Storage: Store produce at village farmgate solar rooms to prevent distress selling during market gluts.'
+      }
+    },
+
     // 4 Representative FPO Smallholder Members
     farmers: [
       {
@@ -622,7 +660,182 @@
         destination: 'Whitefield Green Residency Gate 2 Hub',
         etaMins: 14
       }
-    ]
+    ],
+
+    // Live Verified B2B & Housing Society Buyer Demands (Direct Contracts with Zero Middlemen)
+    buyerDemands: [
+      {
+        id: 'DEM-01',
+        buyerName: 'FreshMart Hypermarket',
+        buyerType: 'Organized Retail Chain',
+        icon: '🏬',
+        crop: 'Tomato (Grade A+ Export)',
+        cropKey: 'tomato',
+        volumeNeededKg: 1500,
+        offeredRateGross: 26.00,
+        netFarmerTakeHome: 23.50,
+        mandiRateComparison: 11.00,
+        gainPerKg: 12.50,
+        pickupSpoke: 'Kolar Solar Pre-cooling Spoke',
+        deliveryWindow: 'Tomorrow, 08:00 AM - 11:00 AM',
+        escrowDepositRs: 39000,
+        escrowStatus: '100% SECURED_IN_BANK',
+        qualityGrade: 'Grade A+ (Brix > 4.5°)',
+        status: 'OPEN_ACCEPTING',
+        fulfilledKg: 650
+      },
+      {
+        id: 'DEM-02',
+        buyerName: 'Mother Dairy / Safal Outlets',
+        buyerType: 'Govt & Cooperative Retail',
+        icon: '🥛',
+        crop: 'Sun-Cured Red Onion',
+        cropKey: 'onion',
+        volumeNeededKg: 2000,
+        offeredRateGross: 32.00,
+        netFarmerTakeHome: 29.00,
+        mandiRateComparison: 16.00,
+        gainPerKg: 13.00,
+        pickupSpoke: 'Malur Rural Consolidation Spoke',
+        deliveryWindow: '16 Sept, Morning Slot',
+        escrowDepositRs: 64000,
+        escrowStatus: '100% SECURED_IN_BANK',
+        qualityGrade: 'Grade A (50mm+ Size)',
+        status: 'OPEN_ACCEPTING',
+        fulfilledKg: 500
+      },
+      {
+        id: 'DEM-03',
+        buyerName: 'Whitefield Residency Cluster (120 Households)',
+        buyerType: 'Apartment Consumer Collective',
+        icon: '🏘️',
+        crop: 'Farm-Fresh Native Tomato',
+        cropKey: 'tomato',
+        volumeNeededKg: 800,
+        offeredRateGross: 27.00,
+        netFarmerTakeHome: 24.50,
+        mandiRateComparison: 11.00,
+        gainPerKg: 13.50,
+        pickupSpoke: 'Kolar Agro Spoke',
+        deliveryWindow: 'Tomorrow, 07:00 AM Direct Dispatch',
+        escrowDepositRs: 21600,
+        escrowStatus: '100% SECURED_IN_BANK',
+        qualityGrade: 'Residue-Free Farm Fresh',
+        status: 'OPEN_ACCEPTING',
+        fulfilledKg: 300
+      },
+      {
+        id: 'DEM-04',
+        buyerName: 'Bangalore Caterers & Hotel Federation',
+        buyerType: 'Commercial Food Service',
+        icon: '🍽️',
+        crop: 'Golden Mountain Potato',
+        cropKey: 'potato',
+        volumeNeededKg: 3000,
+        offeredRateGross: 25.00,
+        netFarmerTakeHome: 22.50,
+        mandiRateComparison: 13.00,
+        gainPerKg: 9.50,
+        pickupSpoke: 'Hoskote Cross-Dock Spoke',
+        deliveryWindow: '17 Sept, 06:00 AM',
+        escrowDepositRs: 75000,
+        escrowStatus: '100% SECURED_IN_BANK',
+        qualityGrade: 'Grade A Uniform Size',
+        status: 'OPEN_ACCEPTING',
+        fulfilledKg: 1200
+      },
+      {
+        id: 'DEM-05',
+        buyerName: 'Kolar Sun-Dry & Agro Processing Co.',
+        buyerType: 'Food Processor',
+        icon: '🏭',
+        crop: 'Green Bell Capsicum',
+        cropKey: 'capsicum',
+        volumeNeededKg: 1200,
+        offeredRateGross: 42.00,
+        netFarmerTakeHome: 38.50,
+        mandiRateComparison: 22.00,
+        gainPerKg: 16.50,
+        pickupSpoke: 'Kolar Solar Spoke',
+        deliveryWindow: '18 Sept, Morning',
+        escrowDepositRs: 50400,
+        escrowStatus: '100% SECURED_IN_BANK',
+        qualityGrade: 'Grade A Thick Wall',
+        status: 'OPEN_ACCEPTING',
+        fulfilledKg: 400
+      }
+    ],
+
+    // Automated Distress Sale & Price Crash Protection Shield
+    distressSaleShield: {
+      isCrashAlertActive: true,
+      crop: 'Tomato (टमाटर)',
+      cropKey: 'tomato',
+      currentMandiCrashRate: 9.00,
+      baselineCultivationCost: 14.50,
+      distressLossPerKg: -5.50,
+      alertMessage: '⚠️ Kolar APMC Mandi Tomato prices crashed by 42% due to temporary supply glut. Traditional farmers are losing ₹5.50/kg or dumping crops on highway!',
+      solutionTitle: '🛡️ Solar Cold Storage + 70% Instant e-NWR Cash Advance',
+      coldStorageFacility: 'Kolar Gramin Solar Cold Room (Unit 2, 4.2 km away)',
+      rentalCostPerCrateDay: 1.50,
+      eNwrLoanAdvanceRatePerKg: 16.50, // 70% advance on expected recovery value
+      expectedRecoveryRate: 25.00,
+      recoveryHorizonDays: '8 to 12 Days',
+      availableColdCrates: 120,
+      status: 'SHIELD_AVAILABLE'
+    },
+
+    // Consumer Housing Societies & Group-Buy Pooling Hubs
+    consumerSocieties: [
+      {
+        id: 'SOC-01',
+        name: 'Whitefield Green Residency',
+        unitsCount: 120,
+        currentPoolKg: 85,
+        targetPoolKg: 100,
+        discountPct: 15,
+        isThresholdReached: false,
+        hubDropLocation: 'Tower B Clubhouse / Gate 2 Hub',
+        scheduledDelivery: 'Tomorrow, 07:00 AM'
+      },
+      {
+        id: 'SOC-02',
+        name: 'Prestige Shantiniketan',
+        unitsCount: 350,
+        currentPoolKg: 165,
+        targetPoolKg: 150,
+        discountPct: 15,
+        isThresholdReached: true,
+        hubDropLocation: 'Main Society Plaza Hub',
+        scheduledDelivery: 'Tomorrow, 07:30 AM'
+      },
+      {
+        id: 'SOC-03',
+        name: 'Green Glen Layout Residents Association',
+        unitsCount: 90,
+        currentPoolKg: 45,
+        targetPoolKg: 80,
+        discountPct: 15,
+        isThresholdReached: false,
+        hubDropLocation: 'Central Park Pavilion',
+        scheduledDelivery: 'Tomorrow, 08:15 AM'
+      }
+    ],
+
+    // Certified Quality Assay & Lab Provenance Test
+    provenanceCert: {
+      labCertificateNo: 'NABL-AGRI-2026-9921',
+      accreditedLab: 'Central Agro Quality Testing Laboratory, GKVK Bengaluru',
+      sampleHarvestDate: '14 Sept 2026, 05:30 AM',
+      sampleTestedDate: '14 Sept 2026, 08:15 AM',
+      farmerName: 'Ramesh Patel',
+      farmLocation: 'Survey No. 44/2, Vokkaleri Village, Kolar',
+      pesticideResidueMgKg: '< 0.01 mg/kg (Zero Chemical Residue Detected)',
+      fssaiStandard: 'FSSAI Category 14 - Certified Safe & Non-Toxic',
+      brixSugar: '4.8° Brix (Grade A+ Sweet & Firm)',
+      firmnessPressure: '4.2 kg/cm² (Ideal Export Firmness)',
+      transportChain: 'Direct Solar Pre-Cooled Reefer Transit (+6.2°C)'
+    }
   };
 })();
 

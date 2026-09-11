@@ -110,7 +110,12 @@
         return;
       }
 
-      grid.innerHTML = products.map(prod => `
+      grid.innerHTML = products.map(prod => {
+        const farmerPct = Math.round((prod.farmerPayout / prod.pricePerKg) * 100);
+        const reeferPct = Math.round((prod.logisticsCost / prod.pricePerKg) * 100);
+        const platformPct = 100 - farmerPct - reeferPct;
+
+        return `
         <div class="product-card">
           <div class="product-badge-strip">
             <span class="product-badge-farmer">👨‍🌾 Grown by ${prod.farmerName}</span>
@@ -138,9 +143,22 @@
               <span class="product-price-save">Save ₹ ${(prod.supermarketPrice - prod.pricePerKg).toFixed(2)}</span>
             </div>
 
-            <div class="transparency-chip-trigger" onclick="window.FF_STORE.openPriceTransparency('${prod.id}')" title="Click to see where your money goes">
-              <span>💰 <strong>₹ ${prod.farmerPayout.toFixed(2)}</strong> goes to farmer</span>
-              <span style="color: var(--primary-700); font-weight: 700;">Transparency ➔</span>
+            <!-- Inline 100% Transparent Rupee Breakdown Mini-Bar -->
+            <div class="transparency-breakdown-card" onclick="window.FF_STORE.openPriceTransparency('${prod.id}')" style="cursor: pointer;" title="Click to view detailed audit breakdown">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
+                <span style="color: #166534; font-weight: 800;">💰 ${farmerPct}% Goes Directly to Farmer</span>
+                <span style="color: var(--primary-700); font-weight: 700;">Full Audit ➔</span>
+              </div>
+              <div class="transparency-bar-wrap">
+                <div class="t-bar-farmer" style="width: ${farmerPct}%;" title="Farmer: ${farmerPct}%"></div>
+                <div class="t-bar-reefer" style="width: ${reeferPct}%;" title="Reefer Logistics: ${reeferPct}%"></div>
+                <div class="t-bar-platform" style="width: ${platformPct}%;" title="Spoke & Platform: ${platformPct}%"></div>
+              </div>
+              <div class="transparency-legend-mini">
+                <span>🌾 Farmer: <strong>₹${prod.farmerPayout.toFixed(2)}</strong></span>
+                <span>🚚 Cold: <strong>₹${prod.logisticsCost.toFixed(2)}</strong></span>
+                <span>⚖️ Spoke: <strong>₹${prod.platformFee.toFixed(2)}</strong></span>
+              </div>
             </div>
 
             <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 16px;">
@@ -155,7 +173,8 @@
             </div>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     },
 
     openPriceTransparency(productId) {
@@ -357,59 +376,93 @@
       `;
     },
 
+    selectedSocietyId: 'SOC-01',
+
+    setSociety(socId) {
+      this.selectedSocietyId = socId;
+      if (window.FF_APP && window.FF_APP.activeRole === 'CONSUMER') {
+        const workspace = document.getElementById('main-workspace');
+        if (workspace) window.FF_APP.renderConsumerView(workspace);
+      }
+      const soc = (window.FF_DATA.consumerSocieties || []).find(s => s.id === socId);
+      if (soc) {
+        window.FF_APP.showToast(`🏘️ Switched delivery hub to ${soc.name}`, 'info');
+      }
+    },
+
     openCheckoutModal(amount) {
       this.closeCartDrawer();
       const modalBox = document.getElementById('modal-box');
       if (!modalBox) return;
 
+      const currentSoc = (window.FF_DATA.consumerSocieties || []).find(s => s.id === this.selectedSocietyId) || window.FF_DATA.consumerSocieties[0];
+      const cert = window.FF_DATA.provenanceCert || {};
+      
+      // Calculate realistic breakdown
+      const payAmount = Number(amount) || 142.00;
+      const supermarketEst = Math.round(payAmount * 1.38);
+      const consumerSavings = supermarketEst - payAmount;
+      const farmerDirectPayout = Math.round(payAmount * 0.734);
+      const middlemanCommissionSaved = Math.round(supermarketEst * 0.25);
+
       modalBox.innerHTML = `
         <div class="modal-header">
-          <div class="modal-title">⚡ Instant Farm-to-Fork Checkout</div>
+          <div class="modal-title">🌱 Transparent Farm-to-Fork Impact Checkout</div>
           <button class="modal-close-btn" onclick="window.FF_APP.closeModal()">✕</button>
         </div>
         <div class="modal-body">
-          <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius-md); padding: 14px; margin-bottom: 18px;">
-            <div style="font-size: 0.95rem; font-weight: 800; color: #166534;">
-              Total Amount: ₹ ${amount} (Zero Middleman Markups)
+          <div class="impact-header-badge">
+            ✓ 100% DIRECT ESCROW • ZERO COMMISSION AGENTS
+          </div>
+
+          <div class="impact-stats-row">
+            <div class="impact-stat-box green">
+              <div style="font-size: 0.78rem; color: #166534; font-weight: 700;">YOUR DIRECT SAVINGS</div>
+              <div class="impact-stat-val">₹ ${consumerSavings}.00</div>
+              <div style="font-size: 0.75rem; color: #15803d; margin-top: 2px;">vs Supermarket Retail (₹${supermarketEst})</div>
             </div>
-            <div style="font-size: 0.8rem; color: #15803d; margin-top: 2px;">
-              Delivery scheduled for tomorrow morning via E-Loader KA-03-D-9912.
+            <div class="impact-stat-box green">
+              <div style="font-size: 0.78rem; color: #166534; font-weight: 700;">FARMER DIRECT EARNINGS</div>
+              <div class="impact-stat-val" style="color: #047857;">₹ ${farmerDirectPayout}.00</div>
+              <div style="font-size: 0.75rem; color: #047857; margin-top: 2px;">+113% higher than Mandi net rate</div>
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Drop-off Location / Cluster Hub:</label>
-            <input type="text" class="form-control" value="Whitefield Green Residency, Security Gate 2 Hub" readonly>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Apartment / Flat No. & Mobile:</label>
-            <input type="text" class="form-control" value="Flat 402, Tower B • +91 98450 11223">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Select Payment Method:</label>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;">
-              <button class="btn btn-secondary active" style="border-color: var(--primary-600); background: var(--primary-50);">
-                📲 UPI (GPay / PhonePe / BHIM)
-              </button>
-              <button class="btn btn-secondary">
-                💳 Card / Net Banking
-              </button>
+          <div style="background: #f8fafc; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0;">
+              <span>Middlemen Eliminated:</span>
+              <strong style="color: #16a34a;">5 Intermediaries (₹${middlemanCommissionSaved} cuts avoided)</strong>
             </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0;">
+              <span>Direct Beneficiary:</span>
+              <strong>Farmer Ramesh Patel (Vokkaleri, Kolar)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0;">
+              <span>Community Hub Drop-off:</span>
+              <strong>${currentSoc.name} (${currentSoc.hubDropLocation})</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-top: 1px dashed #cbd5e1; margin-top: 6px; padding-top: 8px;">
+              <span style="font-weight: 700;">Net Payable (Direct Escrow):</span>
+              <strong style="font-size: 1.15rem; color: var(--primary-900);">₹ ${payAmount.toFixed(2)}</strong>
+            </div>
+          </div>
+
+          <div class="provenance-tag-box">
+            <strong>🛡️ Certified Chemical-Residue-Free (NABL Lab Test):</strong><br>
+            Lab Certificate: ${cert.labCertificateNo || 'NABL-2026-9921'} • Pesticide Residue: &lt; 0.01 mg/kg (100% Safe) • Harvested this morning at 05:30 AM in Kolar.
           </div>
 
           <!-- Simulated UPI QR Code -->
-          <div style="text-align: center; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px; background: #ffffff; margin-top: 14px;">
-            <div class="qr-box" style="margin: 0 auto; width: 100px; height: 100px; font-size: 3.5rem;">📱</div>
-            <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-900); margin-top: 8px;">Scan & Pay ₹ ${amount}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">UPI ID: farmflow.kolar@sbi</div>
+          <div style="text-align: center; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px; background: #ffffff; margin-top: 14px;">
+            <div class="qr-box" style="margin: 0 auto; width: 80px; height: 80px; font-size: 2.8rem;">📱</div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-900); margin-top: 6px;">Scan & Pay ₹ ${payAmount.toFixed(2)} via UPI</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Aadhaar DBT Escrow Bridge • SBI Escrow Node</div>
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" onclick="window.FF_APP.closeModal()">Cancel</button>
-          <button class="btn btn-primary" onclick="window.FF_STORE.confirmOrder()">
-            ⚡ Confirm & Simulate Instant Payment
+          <button class="btn btn-primary" onclick="window.FF_STORE.confirmOrder(${payAmount.toFixed(2)}, '${currentSoc.name}')">
+            ⚡ Pay ₹ ${payAmount.toFixed(2)} & Lock Direct Order
           </button>
         </div>
       `;
@@ -417,14 +470,46 @@
       window.FF_APP.openModal();
     },
 
-    confirmOrder() {
+    confirmOrder(amount, socName) {
       this.cart = [];
       this.updateCartBadge();
       window.FF_APP.closeModal();
-      window.FF_APP.showToast('🎉 Order Placed! Dispatch notification sent to Kolar Spoke.', 'success');
 
-      // Play Kisan Voice confirmation
-      window.FF_VOICE.speak('Your direct farm order is confirmed. Produce will be harvested tomorrow morning and delivered to your cluster gate.');
+      // Show Order Success Voucher Modal
+      const modalBox = document.getElementById('modal-box');
+      if (modalBox) {
+        modalBox.innerHTML = `
+          <div class="modal-header">
+            <div class="modal-title">🎉 Order Confirmed • FarmFlow Batch Sealed</div>
+            <button class="modal-close-btn" onclick="window.FF_APP.closeModal()">✕</button>
+          </div>
+          <div class="modal-body" style="text-align: center; padding: 20px;">
+            <div style="font-size: 3.5rem;">🧺</div>
+            <h3 style="color: #166534; font-size: 1.35rem; margin-top: 8px;">Direct Harvest Scheduled!</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); max-width: 480px; margin: 8px auto 16px;">
+              Your order of <strong>₹ ${amount}</strong> has been secured in bank escrow. Farmer Ramesh Patel has received your harvest token at Vokkaleri, Kolar.
+            </p>
+
+            <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--radius-md); padding: 16px; text-align: left; margin-bottom: 18px;">
+              <div style="font-size: 0.82rem; color: #166534;">
+                📍 <strong>Delivery:</strong> Tomorrow morning at ${socName || 'Your Society Hub'}<br>
+                🚚 <strong>Transit:</strong> Electric Loader KA-03-D-9912 (Reefer Pre-Cooled)<br>
+                💰 <strong>Farmer Take-Home:</strong> 100% direct bank DBT settlement on delivery.
+              </div>
+            </div>
+
+            <div class="qr-box" style="margin: 0 auto; width: 90px; height: 90px; font-size: 3rem;">📱</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">Batch Tamper-Proof QR #CRATE-2026-8812</div>
+          </div>
+          <div class="modal-footer" style="justify-content: center;">
+            <button class="btn btn-primary" onclick="window.FF_APP.closeModal()">Done</button>
+          </div>
+        `;
+        window.FF_APP.openModal();
+      }
+
+      window.FF_APP.showToast('🎉 Order Placed! Dispatch notification sent to Kolar Spoke.', 'success');
+      window.FF_VOICE.speak('Your direct farm order is confirmed. Produce will be harvested early morning and delivered fresh to your society gate.');
     }
   };
 

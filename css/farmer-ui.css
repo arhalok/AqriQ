@@ -773,3 +773,1215 @@
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
+/* ==========================================================================
+   Automated Distress Sale & Price Crash Protection Shield Banner
+   ========================================================================== */
+.distress-shield-banner {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fef3c7 100%);
+  border: 2px solid #f97316;
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 25px -5px rgba(234, 88, 12, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.distress-shield-banner::before {
+  content: "🛡️";
+  position: absolute;
+  right: 20px;
+  bottom: -15px;
+  font-size: 7rem;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.distress-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.distress-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dc2626;
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.distress-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #9a3412;
+  margin-top: 6px;
+}
+
+.distress-msg {
+  font-size: 0.9rem;
+  color: #7c2d12;
+  line-height: 1.5;
+  max-width: 850px;
+}
+
+.distress-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 18px 0;
+}
+
+@media (max-width: 900px) {
+  .distress-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.distress-stat-box {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+
+.distress-stat-lbl {
+  font-size: 0.75rem;
+  color: #9a3412;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.distress-stat-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #7c2d12;
+  margin-top: 2px;
+}
+
+.distress-action-tray {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  border: 1px solid #fed7aa;
+}
+
+.btn-claim-shield {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #ffffff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+  transition: var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-claim-shield:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.4);
+}
+
+/* ==========================================================================
+   Live Direct Buyer Demand Board (सीधे खरीदार मांग बोर्ड)
+   ========================================================================== */
+.demands-board-wrap {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.demands-board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 16px;
+}
+
+.demands-filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.demands-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.demand-card {
+  background: #ffffff;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.demand-card:hover {
+  border-color: var(--primary-500);
+  box-shadow: 0 10px 20px -5px rgba(22, 163, 74, 0.15);
+  transform: translateY(-3px);
+}
+
+.demand-card.highlight {
+  border-color: #16a34a;
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.demand-top-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.demand-buyer-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.demand-buyer-icon {
+  width: 42px;
+  height: 42px;
+  background: #f1f5f9;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.demand-buyer-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--primary-900);
+}
+
+.demand-buyer-type {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.demand-crop-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.demand-rates-row {
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.demand-net-rate {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #166534;
+  font-family: 'Outfit', sans-serif;
+}
+
+.demand-mandi-comp {
+  font-size: 0.78rem;
+  color: #dc2626;
+  text-decoration: line-through;
+}
+
+.demand-gain-badge {
+  display: inline-block;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.demand-meta-list {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.demand-meta-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+}
+
+.demand-meta-item strong {
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   e-NAM EXTENSION LAYER & ILLITERATE-FRIENDLY KISAN UI STYLES
+   Positioning FarmFlow as the Village Spoke on top of e-NAM
+   ========================================================================== */
+
+/* 1. Official e-NAM Spoke Ribbon */
+.enam-spoke-ribbon {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%);
+  color: #ffffff;
+  border-radius: var(--radius-xl);
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 20px -4px rgba(30, 58, 138, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-left: 6px solid #f59e0b; /* Tricolor touch */
+  position: relative;
+  overflow: hidden;
+}
+
+.enam-spoke-ribbon::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ff9933 33%, #ffffff 33%, #ffffff 66%, #138808 66%);
+}
+
+.enam-spoke-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.enam-emblem {
+  font-size: 2.4rem;
+  background: rgba(255, 255, 255, 0.15);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.enam-spoke-titles h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.enam-badge-pill {
+  background: #fef08a;
+  color: #854d0e;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.enam-spoke-sub {
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+}
+
+.enam-spoke-stats {
+  display: flex;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.enam-stat-pill {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  text-align: center;
+  min-width: 100px;
+}
+
+.enam-stat-pill .lbl {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
+}
+
+.enam-stat-pill .val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fef08a;
+  display: block;
+}
+
+@media (max-width: 868px) {
+  .enam-spoke-ribbon {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .enam-spoke-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* 2. Kisan Vani Audio Advisory Hero */
+.kisan-voice-hero {
+  background: linear-gradient(135deg, #064e3b 0%, #047857 60%, #059669 100%);
+  border-radius: var(--radius-xl);
+  padding: 22px 28px;
+  color: #ffffff;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 25px -5px rgba(4, 120, 87, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  position: relative;
+  border: 2px solid #34d399;
+}
+
+.kisan-voice-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.voice-mic-icon-wrap {
+  width: 58px;
+  height: 58px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.voice-mic-icon-wrap:hover {
+  transform: scale(1.08);
+}
+
+.voice-mic-icon-wrap::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.kisan-voice-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kisan-voice-sub {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.92);
+  max-width: 600px;
+  line-height: 1.4;
+}
+
+.kisan-voice-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-kisan-listen-main {
+  background: #f59e0b;
+  color: #1c1917;
+  font-size: 1rem;
+  font-weight: 800;
+  padding: 12px 22px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-kisan-listen-main:hover {
+  background: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
+}
+
+.btn-kisan-stop {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-kisan-stop:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@media (max-width: 768px) {
+  .kisan-voice-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .kisan-voice-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* 3. Illiterate-Friendly 5 Big Visual Action Tiles */
+.kisan-big-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 1120px) {
+  .kisan-big-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .kisan-big-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+.kisan-tile {
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 190px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.kisan-tile:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.12);
+}
+
+.kisan-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.kisan-tile-icon {
+  font-size: 2.8rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.btn-listen-card {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.btn-listen-card:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: scale(1.06);
+}
+
+.kisan-tile-body {
+  margin-bottom: 12px;
+}
+
+.kisan-tile-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 6px;
+  color: var(--text-main);
+}
+
+.kisan-tile-sub {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.kisan-tile-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kisan-tile-badge {
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  display: inline-block;
+}
+
+.kisan-tile-tap-hint {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Color Themes for the 5 Tiles */
+/* Tile 1: 🟢 Sell Produce */
+.kisan-tile.tile-sell {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+.kisan-tile.tile-sell:hover {
+  border-color: #22c55e;
+  box-shadow: 0 12px 24px -6px rgba(34, 197, 94, 0.25);
+}
+.kisan-tile.tile-sell .kisan-tile-title {
+  color: #14532d;
+}
+.kisan-tile.tile-sell .kisan-tile-badge {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+/* Tile 2: 🚚 Book Vehicle */
+.kisan-tile.tile-transport {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+}
+.kisan-tile.tile-transport:hover {
+  border-color: #0284c7;
+  box-shadow: 0 12px 24px -6px rgba(2, 132, 199, 0.25);
+}
+.kisan-tile.tile-transport .kisan-tile-title {
+  color: #0c4a6e;
+}
+.kisan-tile.tile-transport .kisan-tile-badge {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+/* Tile 3: ⚖️ Digital Weighbridge & DBT */
+.kisan-tile.tile-weigh {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+.kisan-tile.tile-weigh:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 12px 24px -6px rgba(245, 158, 11, 0.25);
+}
+.kisan-tile.tile-weigh .kisan-tile-title {
+  color: #78350f;
+}
+.kisan-tile.tile-weigh .kisan-tile-badge {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+/* Tile 4: ❄️ Solar Cold Storage & 70% Loan */
+.kisan-tile.tile-storage {
+  background: #faf5ff;
+  border-color: #d8b4fe;
+}
+.kisan-tile.tile-storage:hover {
+  border-color: #9333ea;
+  box-shadow: 0 12px 24px -6px rgba(147, 51, 234, 0.25);
+}
+.kisan-tile.tile-storage .kisan-tile-title {
+  color: #581c87;
+}
+.kisan-tile.tile-storage .kisan-tile-badge {
+  background: #9333ea;
+  color: #ffffff;
+}
+
+/* Tile 5: 🩺 Crop Doctor */
+.kisan-tile.tile-doctor {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+.kisan-tile.tile-doctor:hover {
+  border-color: #e11d48;
+  box-shadow: 0 12px 24px -6px rgba(225, 29, 72, 0.25);
+}
+.kisan-tile.tile-doctor .kisan-tile-title {
+  color: #881337;
+}
+.kisan-tile.tile-doctor .kisan-tile-badge {
+  background: #e11d48;
+  color: #ffffff;
+}
+
+/* 4. e-NAM vs FarmFlow Spoke Value Comparison Strip */
+.enam-solve-strip {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.enam-solve-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.enam-solve-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary-900);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.enam-solve-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 992px) {
+  .enam-solve-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .enam-solve-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.enam-solve-box {
+  background: #f8fafc;
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  border-left: 4px solid var(--primary-600);
+}
+
+.enam-solve-box .bottleneck {
+  font-size: 0.78rem;
+  color: #dc2626;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.enam-solve-box .solution {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #166534;
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+
+.enam-solve-box .impact-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   INTERACTIVE FLOATING KISAN VOICE PLAYER BAR
+   High-contrast, Animated Soundwave, Multilingual Subtitles
+   ========================================================================== */
+.kisan-floating-voice-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(150%);
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(12px);
+  border: 2px solid #22c55e;
+  border-radius: var(--radius-xl);
+  padding: 14px 22px;
+  color: #ffffff;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+  z-index: 10000;
+  max-width: 860px;
+  width: 92%;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.kisan-floating-voice-bar.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.voice-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.voice-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.voice-wave-anim {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+
+.voice-wave-anim .wave-bar {
+  width: 4px;
+  height: 8px;
+  background: #4ade80;
+  border-radius: 2px;
+  animation: soundwave 1.1s infinite ease-in-out;
+}
+
+.voice-wave-anim .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+.voice-wave-anim .wave-bar:nth-child(3) { animation-delay: 0.35s; }
+.voice-wave-anim .wave-bar:nth-child(4) { animation-delay: 0.1s; }
+.voice-wave-anim .wave-bar:nth-child(5) { animation-delay: 0.25s; }
+
+.voice-wave-anim.paused .wave-bar {
+  animation: none;
+  height: 6px;
+  background: #94a3b8;
+}
+
+@keyframes soundwave {
+  0%, 100% { height: 6px; }
+  50% { height: 26px; }
+}
+
+.voice-bar-text-area {
+  min-width: 0;
+}
+
+.voice-bar-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #86efac;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.voice-status-pill {
+  background: #22c55e;
+  color: #052e16;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+}
+
+.voice-bar-subtitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 540px;
+  line-height: 1.3;
+}
+
+.voice-bar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-voice-ctrl {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-voice-ctrl:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.btn-voice-stop {
+  background: #ef4444;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.btn-voice-stop:hover {
+  background: #dc2626;
+}
+
+.btn-voice-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-pill);
+  transition: color 0.2s ease;
+}
+
+.btn-voice-close:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .voice-bar-subtitle {
+    max-width: 220px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ==========================================================================
+   PRACTICAL DEMO HERO BANNER (खेत से खरीदार तक लाइव डेमो)
+   Designed specifically to prove practical working execution to Hackathon Judges
+   ========================================================================== */
+.practical-demo-banner {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%);
+  border-radius: var(--radius-xl);
+  padding: 20px 26px;
+  color: #ffffff;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 25px -5px rgba(49, 46, 129, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 2px solid #818cf8;
+}
+
+.demo-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.demo-banner-icon {
+  font-size: 2.6rem;
+  background: rgba(255, 255, 255, 0.12);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.demo-banner-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demo-banner-sub {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 620px;
+  line-height: 1.4;
+}
+
+.btn-run-demo {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+  padding: 13px 24px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.btn-run-demo:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.5);
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+}
+
+@media (max-width: 868px) {
+  .practical-demo-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btn-run-demo {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   5-STAGE PRACTICAL LIFECYCLE SIMULATOR MODAL STYLES
+   ========================================================================== */
+.demo-stepper-wrap {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.demo-stepper-wrap::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 24px;
+  right: 24px;
+  height: 3px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.demo-step-pill {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  cursor: pointer;
+  flex: 1;
+}
+
+.demo-step-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin: 0 auto 6px;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.demo-step-pill.active .demo-step-dot {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.demo-step-pill.completed .demo-step-dot {
+  border-color: #16a34a;
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.demo-step-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.demo-step-pill.active .demo-step-label {
+  color: #2563eb;
+  font-weight: 800;
+}
+
+.demo-stage-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 22px;
+  margin-bottom: 20px;
+}
+
+.demo-stage-badge {
+  display: inline-block;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 8px;
+}
+
+.demo-stage-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary-900);
+  margin-bottom: 8px;
+}
+
+.demo-stage-desc {
+  font-size: 0.92rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.demo-stage-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 640px) {
+  .demo-stage-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.demo-metric-cell {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  text-align: center;
+}
+
+.demo-metric-lbl {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.demo-metric-val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--primary-800);
+  margin-top: 2px;
+}
+
+
+
