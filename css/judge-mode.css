@@ -1,0 +1,375 @@
+/* ==========================================================================
+   FarmFlow Kisan - SIH 2026 Judge Presentation & Hackathon Mode
+   Problem Statement 33: Intermediary Elimination, Farmer ROI & Price Transparency
+   ========================================================================== */
+
+.judge-pitch-panel {
+  background: linear-gradient(135deg, #092c19 0%, #06381e 50%, #0d5430 100%);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  color: #ffffff;
+  margin-bottom: 32px;
+  box-shadow: 0 16px 32px -8px rgba(6, 56, 30, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.judge-pitch-panel::before {
+  content: "🏆";
+  position: absolute;
+  right: 20px;
+  top: 10px;
+  font-size: 9rem;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.judge-top-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.sih-badge-pill {
+  background: #f59e0b;
+  color: #000000;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.judge-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.judge-desc {
+  font-size: 1.05rem;
+  color: #cbd5e1;
+  max-width: 960px;
+  line-height: 1.6;
+}
+
+/* 4 Core Hackathon Metrics */
+.judge-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 28px;
+}
+
+@media (max-width: 900px) {
+  .judge-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.judge-metric-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.judge-metric-num {
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  color: #4ade80;
+}
+
+.judge-metric-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.judge-metric-sub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   Where Does Your Rupee Go? (Interactive Price Transparency Meter)
+   ========================================================================== */
+.rupee-breakdown-box {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.rupee-header {
+  margin-bottom: 24px;
+}
+
+.rupee-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-900);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rupee-sub {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.rupee-bars-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 768px) {
+  .rupee-bars-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rupee-scenario-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scenario-title {
+  font-weight: 800;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.scenario-stacked-bar {
+  height: 48px;
+  width: 100%;
+  border-radius: var(--radius-pill);
+  display: flex;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  background: #e2e8f0;
+}
+
+.bar-segment {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: pointer;
+}
+
+/* Segment Colors */
+.seg-farmer { background: #16a34a; }
+.seg-middlemen { background: #dc2626; }
+.seg-retail { background: #f97316; }
+.seg-logistics { background: #0284c7; }
+.seg-spoilage { background: #64748b; }
+.seg-savings { background: #22c55e; }
+.seg-platform { background: #d97706; }
+
+.legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.legend-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legend-val {
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   15-Step End-to-End Live Simulation Controller
+   ========================================================================== */
+.orchestrator-box {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.orchestrator-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 24px;
+}
+
+.sim-step-badge {
+  background: var(--primary-100);
+  color: var(--primary-800);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.sim-actions-tray {
+  display: flex;
+  gap: 10px;
+}
+
+.pipeline-stage-card {
+  background: #f8fafc;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: var(--transition-base);
+}
+
+.pipeline-stage-card.highlight {
+  border-color: var(--primary-600);
+  background: #ffffff;
+  box-shadow: var(--shadow-md);
+}
+
+.stage-title-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stage-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--primary-900);
+}
+
+.stage-actor {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: #e2e8f0;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.stage-data-preview {
+  background: #0f172a;
+  color: #4ade80;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  max-height: 180px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+/* Failure Scenario Triggers */
+.failure-scenarios-tray {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .failure-scenarios-tray {
+    grid-template-columns: 1fr;
+  }
+}
+
+.failure-card {
+  background: #ffffff;
+  border: 1px solid #fed7d7;
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.failure-card:hover {
+  border-color: #e53e3e;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.failure-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #9b2c2c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.failure-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.btn-trigger-fail {
+  background: #fff5f5;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: var(--transition-fast);
+}
+
+.btn-trigger-fail:hover {
+  background: #c53030;
+  color: #ffffff;
+}

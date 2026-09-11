@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmFlow Kisan | Enterprise Agricultural Supply Chain Platform</title>
+  <meta name="description" content="Demand-Driven Agricultural Supply Chain & Intermediary Elimination Platform. Hero Logistics, Multi-Mandi Optimization, Direct Consumer E-Commerce, and Transparent Fair Pricing.">
+  
+  <!-- Modern Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Styling & Design Systems -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/farmer-ui.css">
+  <link rel="stylesheet" href="css/ecommerce.css">
+  <link rel="stylesheet" href="css/logistics-hero.css">
+  <link rel="stylesheet" href="css/judge-mode.css">
+</head>
+<body>
+
+  <!-- Top Enterprise Operations Ribbon -->
+  <div class="sih-judge-ribbon network-admin-ribbon">
+    <div class="sih-ribbon-left">
+      <span class="sih-tag admin-tag">ADMIN</span>
+      <span data-i18n="ribbonText">Enterprise Supply Chain Coordination Network • Active Corridors • 100% Escrow Backed</span>
+    </div>
+    <div class="sih-ribbon-right">
+      <button class="sih-pitch-btn admin-pitch-btn" id="btn-admin-pitch" onclick="window.FF_APP.switchRole('ADMIN')" data-i18n="ribbonBtn">
+        📊 Operations Control Tower (Admin)
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Application Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <a class="brand-wrapper" onclick="window.FF_APP.switchRole('FARMER')">
+        <div class="brand-logo-badge">🌾</div>
+        <div class="brand-titles">
+          <div class="brand-title">
+            <span>FarmFlow</span>
+            <span class="sub">Kisan</span>
+          </div>
+          <div class="brand-subtitle" data-i18n="appSub">
+            Demand-Driven Agri-Supply Chain & Intermediary Elimination
+          </div>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <!-- 3-Language Switcher (Farmer Accessibility) -->
+        <div class="lang-selector-wrap">
+          <span class="lang-icon">🌐</span>
+          <select id="lang-select" class="lang-select" aria-label="Select Language">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="kn">ಕನ್ನಡ (Kannada)</option>
+          </select>
+        </div>
+
+        <!-- Voice Assistant Pill ("Kisan Vani") -->
+        <button class="kisan-vani-btn" id="btn-kisan-vani" title="Listen to today's market rates and farm advisory in audio">
+          <span>🔊</span>
+          <span data-i18n="voiceBtn">Kisan Vani (Audio Advisory)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Role Switcher Tabs Bar -->
+  <nav class="role-tabs-bar" aria-label="Stakeholder Portals">
+    <div class="role-tabs-container">
+      <button class="role-tab active" data-role="FARMER">
+        <span>🌾</span>
+        <span data-i18n="navFarmer">Farmer Portal (किसान)</span>
+        <span class="badge">Primary UI</span>
+      </button>
+      <button class="role-tab" data-role="CONSUMER">
+        <span>🛒</span>
+        <span data-i18n="navConsumer">Consumer Store (उपभोक्ता)</span>
+        <span class="badge" style="background: #16a34a; color: #fff;">Farm Fresh</span>
+      </button>
+      <button class="role-tab" data-role="LOGISTICS">
+        <span>🚚</span>
+        <span data-i18n="navLogistics">Reefer Fleet & Logistics</span>
+        <span class="badge" style="background: #0284c7; color: #fff;">HERO LOGISTICS</span>
+      </button>
+      <button class="role-tab" data-role="FPO">
+        <span>🏢</span>
+        <span data-i18n="navFPO">FPO Aggregation (सहकारी)</span>
+        <span class="badge">242 Members</span>
+      </button>
+      <button class="role-tab" data-role="BUYER">
+        <span>🏬</span>
+        <span data-i18n="navBuyer">B2B Buyer (थोक खरीदार)</span>
+        <span class="badge">1,500 kg</span>
+      </button>
+      <button class="role-tab" data-role="ADMIN">
+        <span>📊</span>
+        <span data-i18n="navAdmin">Operations Control Tower</span>
+        <span class="badge" style="background: #0f766e; color: #fff;">LIVE OPS</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Dynamic Active Workspace -->
+  <main class="main-wrapper" id="main-workspace">
+    <!-- Rendered dynamically by js/app.js -->
+  </main>
+
+  <!-- Floating Shopping Cart Trigger -->
+  <button class="floating-cart-trigger" id="btn-floating-cart" title="View Farm Basket">
+    <span>🧺</span>
+    <span>Farm Basket</span>
+    <span class="cart-count-badge" id="cart-badge-count">2</span>
+  </button>
+
+  <!-- Slide-Over Shopping Cart Drawer -->
+  <div class="cart-drawer-backdrop" id="cart-drawer-backdrop" role="dialog" aria-modal="true">
+    <aside class="cart-drawer">
+      <div class="cart-drawer-header">
+        <div class="cart-drawer-title">
+          <span>🧺</span>
+          <span>My Fresh Farm Basket</span>
+        </div>
+        <button class="modal-close-btn" onclick="window.FF_STORE.closeCartDrawer()">✕</button>
+      </div>
+      <div class="cart-items-scroll" id="cart-items-scroll">
+        <!-- Rendered by window.FF_STORE -->
+      </div>
+      <div class="cart-drawer-footer" id="cart-drawer-footer">
+        <!-- Rendered by window.FF_STORE -->
+      </div>
+    </aside>
+  </div>
+
+  <!-- Global Modal Dialog Backdrop -->
+  <div class="modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-box" id="modal-box"></div>
+  </div>
+
+  <!-- Global Toast Notification Tray -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Global Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span style="font-size: 1.5rem;">🌾</span>
+        <div>
+          <div style="font-weight: 700; color: #ffffff;">FarmFlow Kisan • Demand-Driven Agricultural Supply Chain Platform</div>
+          <div class="footer-text">Built to eliminate agricultural intermediaries and deliver transparent fair prices to farmers and consumers.</div>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="javascript:void(0)" onclick="window.FF_APP.switchRole('ADMIN')">📊 Operations Control Tower</a>
+        <a href="javascript:void(0)" onclick="window.FF_APP.switchRole('LOGISTICS')">🚚 Reefer Fleet & Corridor</a>
+        <a href="javascript:void(0)" onclick="window.FF_APP.switchRole('CONSUMER')">🛒 Farm-to-Fork Store</a>
+        <a href="javascript:void(0)" onclick="window.FF_APP.switchRole('FARMER')">🌾 Farmer Workbench</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic Scripts (Loaded sequentially - Zero CORS, 100% Standalone file:// compatible) -->
+  <script src="js/data.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/kisan-voice.js"></script>
+  <script src="js/crop-doctor.js"></script>
+  <script src="js/mandi-engine.js"></script>
+  <script src="js/ecommerce.js"></script>
+  <script src="js/logistics-hero.js"></script>
+  <script src="js/supply-chain.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
