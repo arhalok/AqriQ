@@ -59,6 +59,10 @@
         // Where to Sell & Mandi
         whereToSellTitle: '"Where Should I Sell?" Smart Multi-Market Logistics Advisor',
         whereToSellSub: 'Compare real take-home earnings across local, city, and direct spoke destinations including freight tariffs and transit spoilage.',
+        unifiedMarketTitle: '"Where Should I Sell?" Best Price & Direct Buyer Engine',
+        unifiedMarketSub: 'Unified real-time comparison across Local APMC Mandi vs Direct Institutional Buyers with 100% Escrow Bank Backing.',
+        bestTakeHomeBadge: '⭐ HIGHEST NET TAKE-HOME',
+        bookColdSlot: '❄️ Book Cold Room Slot',
         mandiCompTitle: 'Live APMC Mandi vs FarmFlow Direct Net Realization',
         mandiCompSub: 'See how much money you actually take home after deducting middleman commissions and transit loss.',
         mandiHeadline: 'Traditional APMC Mandi',
@@ -73,6 +77,8 @@
         tabBookPickup: 'Book Farmgate Transport',
         tabPartnerDesk: 'Transporter Partner Desk',
         tabSpoilageSim: 'Heat & Delay Spoilage Lab',
+        tabRouteOpt: 'AI Route Optimization (TSP)',
+        tabDemandForecast: 'AI Demand Forecasting',
 
         bookTransportTitle: 'Instant Farmgate Agricultural Transport Booking',
         bookTransportSub: 'Book electric loaders, insulated pickups, or refrigerated trucks right to your farm gate in 15 minutes.',
@@ -193,6 +199,8 @@
         tabBookPickup: 'खेत से गाड़ी बुक करें',
         tabPartnerDesk: 'ट्रांसपोर्टर पार्टनर डेस्क',
         tabSpoilageSim: 'गर्मी व बर्बादी लैब',
+        tabRouteOpt: 'एआई रूट ऑप्टिमाइज़ेशन (TSP)',
+        tabDemandForecast: 'एआई मांग पूर्वानुमान',
 
         bookTransportTitle: 'खेत से तुरंत कृषि परिवहन बुकिंग',
         bookTransportSub: 'ई-लोडर, पिकअप या रीफर ट्रक मात्र 15 मिनट में अपने खेत पर बुलाएं।',
@@ -239,6 +247,10 @@
         distressTitle: 'संकट बिक्री सुरक्षा (डिस्ट्रेस सेल शील्ड) - दाम गिरने से बचाव',
         distressSub: 'मंडी में दाम गिर गए हैं? घाटे में न बेचें! सौर कोल्ड रूम में फसल रखें और 70% तुरंत अग्रिम ऋण (e-NWR) खाते में पाएं।',
         btnClaimShield: '🛡️ कोल्ड स्टोरेज में रखें एवं 70% अग्रिम ऋण पाएं',
+        bookColdSlot: '❄️ कोल्ड स्टोरेज स्लॉट बुक करें',
+        unifiedMarketTitle: '"कहाँ बेचें?" सर्वोत्तम भाव व सीधे खरीदार निर्णय मंच',
+        unifiedMarketSub: 'पारदर्शी तुलना: स्थानीय मंडी के बिचौलिया खर्चे vs सीधे संस्थागत खरीदारों का 100% बैंक एस्क्रो सुरक्षित भाव।',
+        bestTakeHomeBadge: '⭐ सर्वाधिक शुद्ध मुनाफा',
 
         // Society Group Buy & Transparency
         societyGroupBuyTitle: 'हाउसिंग सोसायटी सामूहिक खरीद हब (Group-Buy)',
@@ -313,6 +325,8 @@
         tabBookPickup: 'ತೋಟದಿಂದ ವಾಹನ ಬುಕ್ ಮಾಡಿ',
         tabPartnerDesk: 'ಟ್ರಾನ್ಸ್‌ಪೋರ್ಟರ್ ಪಾಲುದಾರ ಡೆಸ್ಕ್',
         tabSpoilageSim: 'ತಾಪಮಾನ ಮತ್ತು ನಷ್ಟ ಲ್ಯಾಬ್',
+        tabRouteOpt: 'AI ಮಾರ್ಗ ಆಪ್ಟಿಮೈಸೇಶನ್ (TSP)',
+        tabDemandForecast: 'AI ಬೇಡಿಕೆ ಮುನ್ಸೂಚನೆ',
 
         bookTransportTitle: 'ತೋಟದಿಂದ ತಕ್ಷಣದ ಕೃಷಿ ವಾಹನ ಬುಕಿಂಗ್',
         bookTransportSub: 'ಇ-ಲೋಡರ್, ಪಿಕಪ್ ಅಥವಾ ರೆಫ್ರಿಜರೇಟೆಡ್ ಟ್ರಕ್ 15 ನಿಮಿಷಗಳಲ್ಲಿ ನಿಮ್ಮ ತೋಟಕ್ಕೆ ಬರುತ್ತದೆ.',
@@ -359,6 +373,10 @@
         distressTitle: 'ಬೆಲೆ ಕುಸಿತ ರಕ್ಷಣಾ ಕವಚ (Distress Sale Shield)',
         distressSub: 'ಮಂಡಿಯಲ್ಲಿ ಬೆಲೆ ಕುಸಿದಿದೆಯೇ? ನಷ್ಟದಲ್ಲಿ ಮಾರಬೇಡಿ! ಸೌರ ಕೋಲ್ಡ್ ರೂಮ್‌ನಲ್ಲಿರಿಸಿ ಮತ್ತು 70% ತಕ್ಷಣದ ಇ-ಎನ್‌ಡಬ್ಲ್ಯೂಆರ್ ಸಾಲ ಪಡೆಯಿರಿ.',
         btnClaimShield: '🛡️ ಕೋಲ್ಡ್ ಸ್ಟೋರೇಜ್‌ನಲ್ಲಿರಿಸಿ ಮತ್ತು 70% ಮುಂಗಡ ಸಾಲ ಪಡೆಯಿರಿ',
+        bookColdSlot: '❄️ ಕೋಲ್ಡ್ ಸ್ಟೋರೇಜ್ ಸ್ಲಾಟ್ ಬುಕ್ ಮಾಡಿ',
+        unifiedMarketTitle: '"ಎಲ್ಲಿ ಮಾರಬೇಕು?" ಉತ್ತಮ ಬೆಲೆ ಮತ್ತು ನೇರ ಖರೀದಿದಾರ ತೀರ್ಮಾನ ವೇದಿಕೆ',
+        unifiedMarketSub: 'ನೇರ ಹೋಲಿಕೆ: ಸ್ಥಳೀಯ ಮಂಡಿಯ ಕಡಿತಗಳು vs ನೇರ ಖರೀದಿದಾರರ 100% ಬ್ಯಾಂಕ್ ಎಸ್ಕ್ರೋ ಖಾತರಿ ಬೆಲೆ.',
+        bestTakeHomeBadge: '⭐ ಗರಿಷ್ಠ ನಿವ್ವಳ ಲಾಭ',
 
         // Society Group Buy & Transparency
         societyGroupBuyTitle: 'ವಸತಿ ಸಮುಚ್ಚಯ ಸಾಮೂಹಿಕ ಖರೀದಿ ಹಬ್ (Group-Buy)',

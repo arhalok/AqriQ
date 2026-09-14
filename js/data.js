@@ -290,6 +290,54 @@
         rating: 5.0,
         reviewsCount: 340,
         description: 'Complete family box: 2kg Tomatoes, 2kg Potatoes, 1.5kg Onions, 500g Capsicum, 500g Chillies & seasonal farm greens.'
+      },
+      {
+        id: 'PROD-07',
+        name: 'Rajasthan Farm Fresh Tomatoes (FPO Direct)',
+        hindiName: 'राजस्थान एफपीओ सीधे खेत के देशी टमाटर',
+        category: 'solanaceous',
+        grade: 'Grade A Farmgate Lot',
+        farmerId: 'FPO-RAJ-01',
+        farmerName: 'Rajasthan Vegetable FPO',
+        farmerVillage: 'Jaipur Agro Hub, Rajasthan',
+        harvestTimestamp: 'Harvested Today Morning',
+        icon: '🍅',
+        unit: 'kg',
+        pricePerKg: 18.00,
+        supermarketPrice: 40.00,
+        farmerPayout: 15.50,
+        logisticsCost: 1.80,
+        platformFee: 0.70,
+        wasteSavedPct: 28,
+        stockKg: 1000,
+        rating: 4.9,
+        reviewsCount: 94,
+        description: 'Direct listing from Rajasthan Vegetable FPO: 1,000 kg lot available for direct purchase by Supermarkets, Hotels, Restaurants, and Consumers at ₹18/kg (vs ₹40/kg retail).'
+      },
+      {
+        id: 'PROD-08',
+        name: 'Hoskote Golden Sweet Corn (New Seller)',
+        hindiName: 'होसकोटे का ताजा मीठा भुट्टा',
+        category: 'condiments',
+        grade: 'Grade A Export Cobs',
+        farmerId: 'ACC-FARMER-02',
+        farmerName: 'Somanna Gowda',
+        farmerVillage: 'Hoskote East, Bengaluru Rural',
+        harvestTimestamp: 'Harvested Today Morning',
+        icon: '🌽',
+        unit: 'kg',
+        pricePerKg: 24.00,
+        supermarketPrice: 38.00,
+        farmerPayout: 18.50,
+        logisticsCost: 3.50,
+        platformFee: 2.00,
+        wasteSavedPct: 22,
+        stockKg: 650,
+        rating: 4.8,
+        reviewsCount: 12,
+        isNewSeller: true,
+        trustScore: 50.0,
+        description: 'Direct listing from new smallholder seller Somanna Gowda. Baseline trust 50/100 with visible New Seller badge. Handpicked juicy sweet corn cobs.'
       }
     ],
 
@@ -666,63 +714,66 @@
     buyerDemands: [
       {
         id: 'DEM-01',
+        buyerName: 'Royal Palace Hotels & Luxury Dining',
+        buyerType: 'Premium Hospitality Group',
+        icon: '🏨',
+        crop: 'Tomato (Grade A+ Cherry/Table)',
+        cropKey: 'tomato',
+        volumeNeededKg: 400,
+        offeredRateGross: 27.50,
+        netFarmerTakeHome: 24.20,
+        netTakeHome: 24.20,
+        mandiRateComparison: 10.77,
+        gainPerKg: 13.43,
+        pickupSpoke: 'Kolar Solar Pre-cooling Spoke',
+        deliveryWindow: 'Tomorrow, 08:00 AM - 11:00 AM',
+        escrowDepositRs: 11000,
+        escrowStatus: '100% SECURED_IN_BANK',
+        qualityGrade: 'Grade A+ (Brix > 4.8°)',
+        status: 'OPEN_ACCEPTING',
+        fulfilledKg: 150
+      },
+      {
+        id: 'DEM-02',
         buyerName: 'FreshMart Hypermarket',
         buyerType: 'Organized Retail Chain',
         icon: '🏬',
-        crop: 'Tomato (Grade A+ Export)',
+        crop: 'Tomato (Grade A Table)',
         cropKey: 'tomato',
-        volumeNeededKg: 1500,
+        volumeNeededKg: 650,
         offeredRateGross: 26.00,
         netFarmerTakeHome: 23.50,
-        mandiRateComparison: 11.00,
-        gainPerKg: 12.50,
+        netTakeHome: 23.50,
+        mandiRateComparison: 10.77,
+        gainPerKg: 12.73,
         pickupSpoke: 'Kolar Solar Pre-cooling Spoke',
         deliveryWindow: 'Tomorrow, 08:00 AM - 11:00 AM',
-        escrowDepositRs: 39000,
+        escrowDepositRs: 16900,
         escrowStatus: '100% SECURED_IN_BANK',
-        qualityGrade: 'Grade A+ (Brix > 4.5°)',
+        qualityGrade: 'Grade A Table (Brix > 4.5°)',
         status: 'OPEN_ACCEPTING',
         fulfilledKg: 650
       },
       {
-        id: 'DEM-02',
-        buyerName: 'Mother Dairy / Safal Outlets',
-        buyerType: 'Govt & Cooperative Retail',
-        icon: '🥛',
-        crop: 'Sun-Cured Red Onion',
-        cropKey: 'onion',
-        volumeNeededKg: 2000,
-        offeredRateGross: 32.00,
-        netFarmerTakeHome: 29.00,
-        mandiRateComparison: 16.00,
-        gainPerKg: 13.00,
-        pickupSpoke: 'Malur Rural Consolidation Spoke',
-        deliveryWindow: '16 Sept, Morning Slot',
-        escrowDepositRs: 64000,
-        escrowStatus: '100% SECURED_IN_BANK',
-        qualityGrade: 'Grade A (50mm+ Size)',
-        status: 'OPEN_ACCEPTING',
-        fulfilledKg: 500
-      },
-      {
         id: 'DEM-03',
-        buyerName: 'Whitefield Residency Cluster (120 Households)',
+        buyerName: 'Whitefield & Bengaluru Housing Societies Cluster',
         buyerType: 'Apartment Consumer Collective',
-        icon: '🏘️',
+        icon: '🏢',
         crop: 'Farm-Fresh Native Tomato',
         cropKey: 'tomato',
-        volumeNeededKg: 800,
-        offeredRateGross: 27.00,
-        netFarmerTakeHome: 24.50,
-        mandiRateComparison: 11.00,
-        gainPerKg: 13.50,
+        volumeNeededKg: 1200,
+        offeredRateGross: 25.00,
+        netFarmerTakeHome: 22.80,
+        netTakeHome: 22.80,
+        mandiRateComparison: 10.77,
+        gainPerKg: 12.03,
         pickupSpoke: 'Kolar Agro Spoke',
         deliveryWindow: 'Tomorrow, 07:00 AM Direct Dispatch',
-        escrowDepositRs: 21600,
+        escrowDepositRs: 30000,
         escrowStatus: '100% SECURED_IN_BANK',
         qualityGrade: 'Residue-Free Farm Fresh',
         status: 'OPEN_ACCEPTING',
-        fulfilledKg: 300
+        fulfilledKg: 400
       },
       {
         id: 'DEM-04',
@@ -835,7 +886,329 @@
       brixSugar: '4.8° Brix (Grade A+ Sweet & Firm)',
       firmnessPressure: '4.2 kg/cm² (Ideal Export Firmness)',
       transportChain: 'Direct Solar Pre-Cooled Reefer Transit (+6.2°C)'
+    },
+
+    // 1. The Actual Middleman Problem & FarmFlow Solution Pricing Model
+    middlemanPriceEscalation: {
+      crop: 'Tomato (टमाटर)',
+      unit: 'kg',
+      traditionalChain: {
+        title: 'Traditional Middleman Multi-Stage Exploitation',
+        steps: [
+          { stage: 'Farmer', price: 15.00, stageCut: 15.00, cumulativeMarkup: 0.00, role: 'Cultivation & Harvest (Bears 100% weather, pest & diesel risks)', icon: '👨‍🌾' },
+          { stage: 'Local Trader / Village Arhtiya', price: 20.00, stageCut: 5.00, cumulativeMarkup: 5.00, role: 'Village middleman buys on credit, charges 33% markup', icon: '🤝' },
+          { stage: 'Wholesaler / APMC Agent', price: 25.00, stageCut: 5.00, cumulativeMarkup: 10.00, role: 'Mandi yard commission, cartage, hamali & weighment loss', icon: '🏬' },
+          { stage: 'Distributor / Secondary Trader', price: 35.00, stageCut: 10.00, cumulativeMarkup: 20.00, role: 'Regional transport markup, coldless truck rot & broker cut', icon: '🏪' },
+          { stage: 'Retailer / Supermarket', price: 40.00, stageCut: 5.00, cumulativeMarkup: 25.00, role: 'Final retail markup paid by consumer', icon: '🛒' }
+        ],
+        farmerReceives: 15.00,
+        consumerPays: 40.00,
+        middlemanGap: 25.00,
+        farmerSharePct: 37.5,
+        middlemanSharePct: 62.5
+      },
+      farmflowDirectChain: {
+        title: 'FarmFlow Demand-Driven Direct Coordination',
+        farmerReceives: 18.00, // Direct fair price
+        pooledLogistics: 3.50,
+        spokeTechAssay: 1.50,
+        consumerPays: 23.00,
+        farmerGainPerKg: 3.00,
+        farmerGainPct: 20.0,
+        consumerSavingsPerKg: 17.00,
+        consumerSavingsPct: 42.5,
+        intermediariesEliminated: 5
+      }
+    },
+
+    // 2. AI-Based Hyperlocal Demand Forecasting Engine (6-Factor Analysis)
+    aiDemandForecasting: {
+      headline: 'AI-Based Hyperlocal Demand Forecasting Engine',
+      summary: 'Analyzes previous sales, seasonal demand, weather conditions, festival periods, local market trends, and current orders to predict upcoming consumption volume.',
+      coreFactors: [
+        { id: 'FAC-1', name: 'Previous Sales Data', weight: '22%', icon: '📊', status: '+14% Week-on-Week consumption acceleration across retail clusters' },
+        { id: 'FAC-2', name: 'Seasonal Demand Cycles', weight: '18%', icon: '🍂', status: 'Post-monsoon transition; household vegetable curry consumption peaks' },
+        { id: 'FAC-3', name: 'Hyperlocal Weather Conditions', weight: '15%', icon: '☀️', status: 'Clear & dry (28°C avg); zero rainfall disruption; high tomato shelf stability' },
+        { id: 'FAC-4', name: 'Festival & Banquet Periods', weight: '20%', icon: '🎉', status: 'Upcoming festival & wedding banquet season surging commercial hotel intake' },
+        { id: 'FAC-5', name: 'Local Mandi Supply Trends', weight: '13%', icon: '📈', status: 'APMC wholesale mandi arrivals down by 18%; regional supply deficit emerging' },
+        { id: 'FAC-6', name: 'Current Pre-Booked Forward Orders', weight: '12%', icon: '📝', status: '3,200 kg already committed in active forward escrows by restaurants & marts' }
+      ],
+      predictions: [
+        {
+          city: 'Jaipur',
+          state: 'Rajasthan',
+          crop: 'Tomato',
+          cropIcon: '🍅',
+          predictedDemandKg: 5000,
+          currentCommittedKg: 3200,
+          unmetDeficitKg: 1800,
+          timeHorizon: 'Next Week (7 Days)',
+          confidenceScore: 94.8,
+          recommendedFarmgatePrice: 18.00,
+          traditionalMandiPrice: 15.00,
+          farmerNetAdvantage: '+ ₹3.00/kg (+20.0%)',
+          recommendedAction: 'Rajasthan Vegetable FPO advised to aggregate 5,000 kg batch for direct city delivery next week.',
+          buyerBreakdown: [
+            { type: 'Supermarkets & Hypermarkets', shareKg: 1800, sharePct: 36, icon: '🏬' },
+            { type: 'Hotels & Banquets (Palace/Heritage)', shareKg: 1400, sharePct: 28, icon: '🏨' },
+            { type: 'Commercial Restaurant Clusters', shareKg: 1000, sharePct: 20, icon: '🍽️' },
+            { type: 'Consumer Housing Collectives', shareKg: 800, sharePct: 16, icon: '🏘️' }
+          ]
+        },
+        {
+          city: 'Bengaluru',
+          state: 'Karnataka',
+          crop: 'Tomato & Capsicum',
+          cropIcon: '🍅',
+          predictedDemandKg: 6500,
+          currentCommittedKg: 4200,
+          unmetDeficitKg: 2300,
+          timeHorizon: 'Next Week (7 Days)',
+          confidenceScore: 96.2,
+          recommendedFarmgatePrice: 23.50,
+          traditionalMandiPrice: 11.00,
+          farmerNetAdvantage: '+ ₹12.50/kg (+113.6%)',
+          recommendedAction: 'Kolar Agro Spoke pre-cooling chamber to aggregate 2,200 kg lots with 4-Ton Reefer truck.',
+          buyerBreakdown: [
+            { type: 'FreshMart Hypermarket Hubs', shareKg: 3000, sharePct: 46, icon: '🏬' },
+            { type: 'Apartment Housing Societies', shareKg: 2000, sharePct: 31, icon: '🏘️' },
+            { type: 'Cloud Kitchens & Caterers', shareKg: 1500, sharePct: 23, icon: '🍽️' }
+          ]
+        },
+        {
+          city: 'Delhi NCR',
+          state: 'Delhi',
+          crop: 'Tomato & Potato',
+          cropIcon: '🥔',
+          predictedDemandKg: 8200,
+          currentCommittedKg: 5100,
+          unmetDeficitKg: 3100,
+          timeHorizon: 'Next Week (7 Days)',
+          confidenceScore: 93.5,
+          recommendedFarmgatePrice: 21.00,
+          traditionalMandiPrice: 14.00,
+          farmerNetAdvantage: '+ ₹7.00/kg (+50.0%)',
+          recommendedAction: 'Schedule interstate refrigerated corridor from Jaipur and Haryana aggregator spokes.',
+          buyerBreakdown: [
+            { type: 'Organized Supermarkets', shareKg: 4500, sharePct: 55, icon: '🏬' },
+            { type: 'Hotel Federations', shareKg: 2200, sharePct: 27, icon: '🏨' },
+            { type: 'Society Bulk Baskets', shareKg: 1500, sharePct: 18, icon: '🏘️' }
+          ]
+        }
+      ]
+    },
+
+    // 3. AI-Based Multi-Stop Route Optimization & Pooled Fleet Dispatch
+    aiRouteOptimization: {
+      title: 'AI-Based Multi-Stop Route Optimization & Pooled Fleet Dispatch',
+      overview: 'Calculates the mathematically optimal Travelling Salesperson (TSP) delivery path based on delivery locations, vehicle capacity, distance, and traffic.',
+      scenario: 'Consolidated dispatch for 4,000 kg multi-delivery batch across Northern Agro-Corridor.',
+      inefficientRoute: {
+        name: 'Traditional Disorganized Route (Wasteful Backtracking)',
+        pathSummary: 'Farmer (Jaipur) ➔ Jaipur City ➔ Ajmer ➔ Jaipur Backtrack ➔ Delhi',
+        stops: [
+          { seq: 1, location: 'Farmer Farmgate (Jaipur Outskirts)', action: 'Pickup 4,000 kg harvest', km: 0, status: 'Depart 06:00 AM' },
+          { seq: 2, location: 'Jaipur Local Mandi Yard', action: 'Unload 1,000 kg (Manual auction queue delay 4 hrs)', km: 35, status: 'Delay +4 hrs' },
+          { seq: 3, location: 'Ajmer Wholesale Yard', action: 'Unload 1,000 kg (Drive southwest 135 km away)', km: 170, status: 'Traffic Congestion' },
+          { seq: 4, location: 'Jaipur Backtracking Loop', action: 'Wasteful return on same highway (Redundant 135 km)', km: 305, status: '⚠️ 135 km Waste Backtrack' },
+          { seq: 5, location: 'Delhi Central Hub', action: 'Final unload 2,000 kg (Driver exhausted, 14.5% produce rotted)', km: 820, status: 'Delivered 01:30 AM Next Day' }
+        ],
+        totalDistanceKm: 820,
+        estimatedDurationHours: 19.5,
+        fuelConsumptionLiters: 182,
+        fuelCostRs: 18400,
+        transitSpoilagePct: 14.5,
+        spoilageValueLostRs: 11600,
+        co2EmissionsKg: 284,
+        backtrackingPenalty: '135 km redundant loop through Jaipur twice',
+        trafficDelaysHours: 4.5
+      },
+      optimizedRoute: {
+        name: 'AI-Optimized Dynamic Pooled Route (Zero Backtracking)',
+        pathSummary: 'Farmer ➔ Jaipur Hub ➔ Ajmer Reefer Drop ➔ Delhi Direct Expressway',
+        stops: [
+          { seq: 1, location: 'Rajasthan Vegetable FPO Farmgate', action: 'Rapid 15-min pooled loading (4,000 kg)', km: 0, status: 'Depart 06:00 AM' },
+          { seq: 2, location: 'Jaipur Pre-Cooling Spoke Hub', action: 'Pre-chill chamber intake + 1,000 kg local drop', km: 28, status: 'Quick Dock Bay 1' },
+          { seq: 3, location: 'Ajmer Dedicated Reefer Drop', action: 'Direct offload 1,000 kg at cold receiving bay', km: 160, status: 'Scheduled Bay 2' },
+          { seq: 4, location: 'Delhi NCR Mega Distribution Hub', action: 'Express transit via direct highway; 2,000 kg final drop', km: 540, status: 'Delivered 05:12 PM Same Day' }
+        ],
+        totalDistanceKm: 540,
+        estimatedDurationHours: 11.2,
+        fuelConsumptionLiters: 110,
+        fuelCostRs: 11200,
+        transitSpoilagePct: 1.2,
+        spoilageValueLostRs: 960,
+        co2EmissionsKg: 172,
+        backtrackingPenalty: '0 km (Zero Backtracking)',
+        trafficDelaysHours: 0.5,
+        savings: {
+          distanceSavedKm: 280,
+          distanceSavedPct: 34.1,
+          timeSavedHours: 8.3,
+          timeSavedPct: 42.5,
+          fuelCostSavedRs: 7200,
+          spoilageSavedRs: 10640,
+          totalMoneySavedRs: 17840
+        }
+      }
+    },
+
+    // 4. Comparable Customer Benchmarking Matrix for Farmers (100% Aligned with Unified Market Engine)
+    comparableCustomers: [
+      {
+        id: 'CUST-01',
+        name: 'Royal Palace Hotels & Luxury Dining',
+        type: 'Premium Hospitality Group',
+        icon: '🏨',
+        crop: 'Tomato (Grade A+ Cherry/Table)',
+        neededQtyKg: 400,
+        offeredRateGross: 27.50,
+        netTakeHome: 24.20,
+        netFarmerTakeHome: 24.20,
+        mandiRate: 16.00,
+        gainVsMandiRs: '+ ₹13.43/kg (+125%) vs Mandi Net',
+        paymentTerms: '⚡ Instant Direct Bank DBT via SBI Escrow',
+        escrowLockedRs: 11000,
+        pickupMode: 'Insulated Chilled Transit (₹3.30/kg)',
+        rating: 4.9,
+        badge: '🏆 Highest Net Take-Home'
+      },
+      {
+        id: 'CUST-02',
+        name: 'FreshMart Hypermarkets (Organized Retail Chain)',
+        type: 'Organized Supermarket Chain',
+        icon: '🏬',
+        crop: 'Tomato (Grade A Table)',
+        neededQtyKg: 650,
+        offeredRateGross: 26.00,
+        netTakeHome: 23.50,
+        netFarmerTakeHome: 23.50,
+        mandiRate: 16.00,
+        gainVsMandiRs: '+ ₹12.73/kg (+118%) vs Mandi Net',
+        paymentTerms: '⚡ 2-Hour ICICI Escrow DBT Payout',
+        escrowLockedRs: 16900,
+        pickupMode: '15-min EV Farmgate Pickup (₹2.50/kg)',
+        rating: 4.9,
+        badge: 'Verified Retail Chain'
+      },
+      {
+        id: 'CUST-03',
+        name: 'Bengaluru Housing Societies Collective',
+        type: 'Direct Consumer Group-Buy',
+        icon: '🏢',
+        crop: 'Tomato (Table Fresh)',
+        neededQtyKg: 1200,
+        offeredRateGross: 25.00,
+        netTakeHome: 22.80,
+        netFarmerTakeHome: 22.80,
+        mandiRate: 16.00,
+        gainVsMandiRs: '+ ₹12.03/kg (+112%) vs Mandi Net',
+        paymentTerms: '⚡ Razorpay Bank Escrow Payout',
+        escrowLockedRs: 30000,
+        pickupMode: 'Pooled Spoke Carrier (₹2.20/kg)',
+        rating: 4.8,
+        badge: 'Direct Consumer Pool'
+      },
+      {
+        id: 'CUST-04',
+        name: 'CloudKitchen Culinary Processing Hub',
+        type: 'Bulk Food Prep & Commercial Kitchens',
+        icon: '🍽️',
+        crop: 'Tomato (Grade B/A Yield)',
+        neededQtyKg: 800,
+        offeredRateGross: 23.00,
+        netTakeHome: 21.00,
+        netFarmerTakeHome: 21.00,
+        mandiRate: 16.00,
+        gainVsMandiRs: '+ ₹10.23/kg (+95%) vs Mandi Net',
+        paymentTerms: '⚡ HDFC Bank Escrow Vault Release',
+        escrowLockedRs: 18400,
+        pickupMode: 'Bulk E-Loader (₹2.00/kg)',
+        rating: 4.7,
+        badge: 'High Daily Volume'
+      },
+      {
+        id: 'CUST-05',
+        name: 'Traditional APMC Mandi Yard (The Middleman Trap)',
+        type: 'Traditional Middleman Open Yard',
+        icon: '🏛️',
+        crop: 'Tomato (Unsorted)',
+        neededQtyKg: 5000,
+        offeredRateGross: 16.00,
+        netTakeHome: 10.77,
+        netFarmerTakeHome: 10.77, // After 8.5% commission, ₹2.20 hamali, 5% weigh theft
+        mandiRate: 16.00,
+        gainVsMandiRs: '- ₹5.23/kg (-33% Middleman Cuts)',
+        paymentTerms: '⏳ 15-45 Days Delayed Credit (Zero Escrow)',
+        escrowLockedRs: 0,
+        pickupMode: 'Farmer Must Pay Own Mandi Transport',
+        rating: 2.3,
+        badge: 'Traditional Trap'
+      }
+    ],
+
+    // 5. Operational Execution Clarity: WHO, WHEN, and HOW Matrix
+    operationalExecutionMatrix: {
+      who: [
+        { role: 'Farmer (Producer)', icon: '👨‍🌾', action: 'Lists crops pre-harvest, verifies AI target rate, confirms buyer contract, delivers to village spoke' },
+        { role: 'FPO (Aggregator)', icon: '🏢', action: 'Aggregates 242 smallholder harvests, tests Grade-A quality, packages pooled dispatches' },
+        { role: 'Logistics Fleet', icon: '🚚', action: 'Dispatches multi-stop Reefer EVs along AI TSP-optimized routes with real-time temperature tracking' },
+        { role: 'Direct Buyer', icon: '🏬', action: 'Pre-books produce, funds 100% bank escrow, verifies QR batch upon arrival' },
+        { role: 'Spoke Node (Admin)', icon: '🏛️', action: 'Operates IoT digital scale, validates weight slip, triggers automated Aadhaar DBT payout' }
+      ],
+      when: [
+        { time: 'T-7 to T-14 Days', phase: 'Pre-Harvest', trigger: 'AI scans 6 demand drivers, recommends fair rate band, buyers lock forward contracts' },
+        { time: '06:00 AM Harvest Day', phase: 'Harvesting', trigger: 'Farmers harvest exact confirmed lot sizes, completely preventing unsold mandi gluts' },
+        { time: '07:30 AM Morning', phase: 'Aggregation', trigger: 'Produce delivered to Village Spoke; IoT digital scale generates tamper-proof QR weight slip' },
+        { time: '08:30 AM Morning', phase: 'Smart Transit', trigger: 'Consolidated EV carrier departs on TSP route, saving 280 km & 8.3 hours spoilage time' },
+        { time: '11:00 AM Midday', phase: 'Direct Delivery', trigger: 'Buyer scans QR barcode, verifies Grade-A specs, approves instant electronic receipt' },
+        { time: 'Within 2 Hours', phase: 'Settlement', trigger: 'Smart bank escrow releases direct Aadhaar DBT to farmer bank accounts with zero commission' }
+      ],
+      how: [
+        { pillar: 'AI Demand Forecasting', icon: '🤖', mechanism: '6-factor ML model (past sales, seasonal cycles, rainfall, wholesale mandi deficit, festival calendar, pre-orders)' },
+        { pillar: 'Disintermediation Engine', icon: '⚖️', mechanism: 'Bypasses 5 middleman cuts (₹15➔₹20➔₹25➔₹35➔₹40), giving farmers ₹18–₹23/kg (+20%) and consumers ₹24–₹28/kg (-30%)' },
+        { pillar: 'TSP Route Optimization', icon: '🗺️', mechanism: 'Dynamic Traveling Salesperson algorithm consolidates multi-pickup routes, cutting 34% transit distance & fuel' },
+        { pillar: '100% Escrow & Aadhaar DBT', icon: '🔒', mechanism: 'Upfront buyer funds held in escrow, released directly to farmer bank account upon IoT digital weight validation' }
+      ]
+    },
+
+    // 6. Guided Step-by-Step Flow Definitions with WHO, WHEN, and HOW
+    stakeholderGuidedFlows: {
+      farmer: {
+        role: 'FARMER',
+        title: 'Farmer Execution Pipeline (किसान परिचालन प्रवाह)',
+        currentStep: 1,
+        steps: [
+          { num: 1, id: 'REC', title: 'AI Demand & Price Floor', icon: '🤖', who: 'Farmer & AI Model', when: 'T-7d Pre-Harvest', how: '6 AI factors predict 5,000 kg Jaipur demand @ ₹18-₹23.50/kg', desc: 'Predicted Jaipur demand: ~5,000 kg tomatoes next week @ ₹18-₹23.50/kg.' },
+          { num: 2, id: 'COMPARE', title: 'Benchmark 5 Buyer Classes', icon: '⚖️', who: 'Farmer & Direct Buyers', when: 'T-5d Pre-Harvest', how: 'Supermarkets (₹22), Hotels (₹23) vs APMC Mandi (₹15 trap)', desc: 'Compare Supermarket, Hotel, and Bulk rates vs Mandi.' },
+          { num: 3, id: 'DEAL', title: 'Confirm Forward Contract', icon: '📝', who: 'Farmer & Buyer', when: 'T-3d to Harvest Day', how: '100% bank escrow guarantee; order-driven harvest with 0% waste', desc: 'Lock 1,000 kg lot @ ₹18/kg with 100% escrow guarantee.' },
+          { num: 4, id: 'LOGISTICS', title: 'Farm Pickup & Instant DBT', icon: '🚚', who: 'Fleet, IoT Spoke & Bank', when: '07:30 AM ➔ 2h to DBT', how: 'IoT scale weighs batch; TSP route dispatches; Aadhaar DBT payout', desc: 'EV pickup at farmgate, IoT digital weighing, instant DBT payout.' }
+        ]
+      },
+      customer: {
+        role: 'CONSUMER',
+        title: 'Consumer Execution Pipeline (उपभोक्ता परिचालन प्रवाह)',
+        currentStep: 1,
+        steps: [
+          { num: 1, id: 'BROWSE', title: 'Direct Farm Listings', icon: '🌾', who: 'Consumer & FPO', when: 'Daily Morning', how: 'Rajasthan FPO & Kolar direct inventory listed @ ₹18-₹25/kg', desc: 'Direct farm listings with farmer origin & harvest date.' },
+          { num: 2, id: 'PRICING', title: 'Zero-Middleman Price', icon: '🔍', who: 'Consumer vs 5 Middlemen', when: 'Price Discovery', how: 'Cuts ₹15➔₹40 chain; pay ₹25/kg instead of retail ₹40/kg (-30%)', desc: 'Eliminates 5 middlemen layers; save 25-40% on produce.' },
+          { num: 3, id: 'ORDER', title: 'Pooled Neighborhood Delivery', icon: '🛒', who: 'Society & Carrier', when: 'Closes 20:00 ➔ 07:00 AM', how: 'Cluster pooling unlocks free delivery & consolidated reefer EV', desc: 'Batch order with society cluster for pooled free delivery.' },
+          { num: 4, id: 'TRACE', title: 'QR Origin & Cold-Chain', icon: '📱', who: 'Consumer & IoT Spoke', when: 'Upon Delivery', how: 'Scan QR to verify harvest timestamp, farm origin & temperature logs', desc: 'Verify farm origin, harvest time & transit logs via QR.' }
+        ]
+      },
+      fpo: {
+        role: 'FPO',
+        title: 'FPO Aggregation Pipeline (सहकारी परिचालन प्रवाह)',
+        currentStep: 1,
+        steps: [
+          { num: 1, id: 'FORECAST', title: 'Multi-City AI Demand Plan', icon: '📊', who: 'FPO & 242 Farmers', when: 'Weekly Cycle', how: 'Allocates harvest quotas based on 5,000 kg Jaipur demand', desc: 'Forecast 5,000 kg Jaipur tomato need to allocate member quotas.' },
+          { num: 2, id: 'AGGREGATE', title: 'Smallholder Lot Consolidation', icon: '🚜', who: 'FPO Spoke & Farmers', when: '06:00 – 08:00 AM', how: 'Aggregates 10-50 kg farm lots into 1,000-5,000 kg Grade-A batches', desc: 'Combine member harvests into consolidated commercial batches.' },
+          { num: 3, id: 'ROUTE', title: 'AI Route Dispatch', icon: '🗺️', who: 'FPO & Reefer Carrier', when: '08:30 AM Dispatch', how: 'TSP algorithm cuts 280 km, saving ₹7,200 fuel & ₹10,640 spoilage', desc: 'Dynamic TSP route saves 34% fuel and stops transit spoilage.' },
+          { num: 4, id: 'DISBURSE', title: 'Direct Bank Escrow Settlement', icon: '🏦', who: 'FPO, Bank & Members', when: 'Within 2 Hours', how: 'Disburses 100% escrow proceeds directly to member bank accounts', desc: 'Automated 100% DBT release to member bank accounts.' }
+        ]
+      }
     }
   };
 })();
+
 

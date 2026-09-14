@@ -1,0 +1,924 @@
+/**
+ * FarmFlow - Actor Onboarding & Asymmetric KYC Verification Styling
+ * Rich aesthetics, responsive modal layouts, DPDP compliance callouts, and status pills.
+ */
+
+/* ==========================================================================
+   1. Header Account Identity Chip & Switcher Trigger
+   ========================================================================== */
+.account-header-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 4px 12px 4px 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.account-header-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.account-avatar-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.account-info-compact {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.account-name-row {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.2;
+}
+
+.account-meta-row {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-onboard-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(4, 120, 87, 0.35);
+}
+
+.btn-onboard-trigger:hover {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.5);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   2. KYC Status Badges & Pills
+   ========================================================================== */
+.kyc-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.kyc-verified {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.kyc-pending {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+  animation: pulse-soft 2s infinite;
+}
+
+.kyc-rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.kyc-suspended {
+  background: #ffe4e6;
+  color: #be123c;
+  border: 1px solid #fda4af;
+}
+
+.kyc-flagged {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #d8b4fe;
+}
+
+.new-seller-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ==========================================================================
+   3. Gated Read-Only Banners
+   ========================================================================== */
+.gated-alert-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: var(--radius-lg, 12px);
+  margin-bottom: 24px;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  color: #92400e;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);
+}
+
+.gated-alert-banner.danger {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #9f1239;
+}
+
+.gated-alert-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.gated-alert-body {
+  flex: 1;
+}
+
+.gated-alert-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gated-alert-desc {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: inherit;
+  opacity: 0.95;
+}
+
+.gated-alert-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+/* Disabled write controls state */
+.gated-disabled {
+  opacity: 0.55 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  position: relative;
+}
+
+.gated-disabled::after {
+  content: '🔒 Verification Required';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   4. Onboarding Wizard Modal Styles
+   ========================================================================== */
+.onboarding-modal-container {
+  max-width: 680px;
+  width: 100%;
+}
+
+.actor-select-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 640px) {
+  .actor-select-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.actor-option-card {
+  border: 2px solid var(--border-light, #e2e8f0);
+  border-radius: var(--radius-md, 10px);
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.actor-option-card:hover {
+  border-color: var(--primary-500, #10b981);
+  background: #f0fdf4;
+  transform: translateY(-2px);
+}
+
+.actor-option-card.active {
+  border-color: var(--primary-700, #047857);
+  background: #ecfdf5;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.actor-opt-icon {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+}
+
+.actor-opt-name {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--primary-900, #064e3b);
+}
+
+.actor-opt-risk {
+  font-size: 0.68rem;
+  font-weight: 700;
+  margin-top: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.risk-heavy { background: #fee2e2; color: #b91c1c; }
+.risk-medium { background: #fef3c7; color: #b45309; }
+.risk-light { background: #dcfce7; color: #15803d; }
+
+/* Asymmetry Callout Box */
+.asymmetry-insight-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #0284c7;
+  border-radius: var(--radius-sm, 6px);
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  color: #334155;
+  margin-bottom: 18px;
+  line-height: 1.45;
+}
+
+.dpdp-compliance-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.field-hint-text {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  margin-top: 4px;
+}
+
+.field-validation-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-valid { color: #16a34a; }
+.status-invalid { color: #dc2626; }
+
+/* ==========================================================================
+   5. OTP Verification Modal
+   ========================================================================== */
+.otp-dialog-wrapper {
+  text-align: center;
+  padding: 16px;
+}
+
+.otp-inputs-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.otp-box {
+  width: 44px;
+  height: 52px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  color: #0f172a;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.otp-box:focus {
+  border-color: #059669;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+}
+
+.otp-timer-text {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.otp-timer-count {
+  font-weight: 800;
+  color: #047857;
+}
+
+/* ==========================================================================
+   6. Account Switcher Dropdown / Modal List
+   ========================================================================== */
+.account-switch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.account-card-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border-light, #e2e8f0);
+  border-radius: var(--radius-md, 10px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.account-card-item:hover {
+  border-color: #10b981;
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.account-card-item.current {
+  border-color: #047857;
+  background: #ecfdf5;
+  box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.15);
+}
+
+.account-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.account-card-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--primary-900, #064e3b);
+}
+
+.account-card-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   7. Admin KYC Compliance Desk
+   ========================================================================== */
+.admin-kyc-desk-wrap {
+  background: #ffffff;
+  border: 1px solid var(--border-light, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.kyc-summary-counters {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .kyc-summary-counters {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kyc-counter-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md, 10px);
+  padding: 14px;
+  text-align: left;
+}
+
+.kyc-counter-val {
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.kyc-counter-lbl {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.kyc-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.kyc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.kyc-table th {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.kyc-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.kyc-table tr:hover {
+  background: #f8fafc;
+}
+
+.kyc-action-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-kyc-action {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.btn-kyc-approve {
+  background: #dcfce7;
+  color: #15803d;
+}
+.btn-kyc-approve:hover {
+  background: #bbf7d0;
+}
+
+.btn-kyc-reject {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.btn-kyc-reject:hover {
+  background: #fecaca;
+}
+
+.btn-kyc-suspend {
+  background: #ffe4e6;
+  color: #be123c;
+}
+.btn-kyc-suspend:hover {
+  background: #fecdd3;
+}
+
+.btn-kyc-inspect {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+.btn-kyc-inspect:hover {
+  background: #e2e8f0;
+}
+
+/* Asymmetry Matrix Table */
+.asymmetry-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 18px 0 24px 0;
+}
+
+@media (max-width: 768px) {
+  .asymmetry-matrix-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.asymmetry-card {
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.asymmetry-card.sellers {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.asymmetry-card.buyers {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.asymmetry-card.logistics {
+  background: #faf5ff;
+  border-color: #d8b4fe;
+}
+
+.asymmetry-card-head {
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.asymmetry-card-risk {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.asymmetry-card-rules {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #475569;
+}
+
+/* ==========================================================================
+   8. Dedicated Multi-Step Onboarding User Flow Page
+   ========================================================================== */
+.flow-page-wrapper {
+  max-width: 960px;
+  margin: 0 auto 40px auto;
+  padding: 0 16px;
+}
+
+/* Stepper Progress Bar */
+.flow-stepper-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid var(--border-light, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 18px 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.flow-step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  position: relative;
+  opacity: 0.55;
+  transition: all 0.2s ease;
+}
+
+.flow-step-item.active {
+  opacity: 1;
+}
+
+.flow-step-item.completed {
+  opacity: 0.9;
+}
+
+.flow-step-bubble {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.flow-step-item.active .flow-step-bubble {
+  background: #047857;
+  border-color: #047857;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.2);
+}
+
+.flow-step-item.completed .flow-step-bubble {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+.flow-step-labels {
+  display: flex;
+  flex-direction: column;
+}
+
+.flow-step-num {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.flow-step-name {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--primary-900, #064e3b);
+  line-height: 1.2;
+}
+
+.flow-step-divider {
+  height: 2px;
+  background: #e2e8f0;
+  flex: 0 0 30px;
+  margin: 0 10px;
+}
+
+@media (max-width: 768px) {
+  .flow-stepper-container {
+    padding: 12px 14px;
+  }
+  .flow-step-labels {
+    display: none;
+  }
+  .flow-step-divider {
+    flex: 0 0 14px;
+  }
+}
+
+/* Step 1 Role Selection Grid */
+.role-hero-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 820px) {
+  .role-hero-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .role-hero-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.role-hero-card {
+  background: #ffffff;
+  border: 2px solid var(--border-light, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 20px 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.role-hero-card:hover {
+  border-color: #10b981;
+  background: #f0fdf4;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.12);
+}
+
+.role-hero-card.selected {
+  border-color: #047857;
+  background: #ecfdf5;
+  box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.25), 0 8px 20px rgba(4, 120, 87, 0.12);
+}
+
+.role-hero-card.selected::after {
+  content: '✓ Selected';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #047857;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.role-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.role-card-icon {
+  font-size: 2.2rem;
+}
+
+.role-card-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary-900, #064e3b);
+  line-height: 1.2;
+}
+
+.role-card-desc {
+  font-size: 0.84rem;
+  color: #475569;
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.role-card-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Page Card Container */
+.flow-card-panel {
+  background: #ffffff;
+  border: 1px solid var(--border-light, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  margin-bottom: 24px;
+}
+
+.flow-card-header {
+  border-bottom: 1px solid var(--border-light, #e2e8f0);
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+}
+
+.flow-card-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--primary-900, #064e3b);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flow-card-sub {
+  font-size: 0.86rem;
+  color: var(--text-muted, #64748b);
+  margin-top: 4px;
+}
+
+.flow-nav-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+  border-top: 1px solid var(--border-light, #e2e8f0);
+  padding-top: 18px;
+}
+
+/* Outcome Card (Step 4) */
+.outcome-celebrate-box {
+  text-align: center;
+  padding: 24px 12px;
+}
+
+.outcome-icon-large {
+  font-size: 4rem;
+  margin-bottom: 12px;
+  animation: bounce-soft 1s ease;
+}
+
+.outcome-title-text {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary-900, #064e3b);
+  margin-bottom: 6px;
+}
+
+.outcome-sub-text {
+  font-size: 0.92rem;
+  color: #475569;
+  max-width: 580px;
+  margin: 0 auto 20px auto;
+  line-height: 1.5;
+}
+
+.outcome-details-summary {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-md, 10px);
+  padding: 18px 24px;
+  max-width: 620px;
+  margin: 0 auto 24px auto;
+  text-align: left;
+}
+
+.outcome-details-summary.verified {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.outcome-details-summary.pending {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+@keyframes bounce-soft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+

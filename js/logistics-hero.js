@@ -625,6 +625,156 @@
           readout.textContent = `${current.toFixed(1)} kg`;
         }
       }, 40);
+    },
+
+    // ========================================================================
+    // 8. AI-BASED ROUTE OPTIMIZATION & POOLED MULTI-STOP DISPATCH
+    // ========================================================================
+    renderRouteOptimizer() {
+      const data = window.FF_DATA.aiRouteOptimization;
+      if (!data) return '';
+      const ineff = data.inefficientRoute;
+      const opt = data.optimizedRoute;
+      const sav = opt.savings;
+
+      return `
+        <div class="route-optimizer-panel">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; border-bottom: 1px solid var(--border-light); padding-bottom: 16px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.5rem;">🗺️</span>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--primary-900); margin: 0;">
+                  ${data.title}
+                </h3>
+                <span class="badge badge-success">✓ AI TSP Multi-Stop Algorithm</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; max-width: 780px;">
+                ${data.overview}
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary btn-sm" onclick="window.FF_APP.openDemandForecastModal('Tomato', 'Jaipur')">
+                📊 View AI Demand Forecast
+              </button>
+            </div>
+          </div>
+
+          <!-- Top Executive Savings Summary Pill Banner -->
+          <div style="background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0369a1 100%); color: #fff; border-radius: var(--radius-lg); padding: 18px 22px; margin: 18px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #a7f3d0; font-weight: 700;">AI Optimization Impact (Jaipur-Ajmer-Delhi Agro Corridor)</span>
+              <div style="font-size: 1.35rem; font-weight: 800; color: #fef08a; margin-top: 2px;">
+                ₹ ${sav.totalMoneySavedRs.toLocaleString()} Net Saved Per Dispatch Run
+              </div>
+            </div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+              <div style="text-align: center;">
+                <div style="font-size: 1.4rem; font-weight: 800; color: #6ee7b7;">-${sav.distanceSavedKm} km</div>
+                <div style="font-size: 0.72rem; color: #d1fae5;">Distance (${sav.distanceSavedPct}% Less)</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 1.4rem; font-weight: 800; color: #38bdf8;">-${sav.timeSavedHours} hrs</div>
+                <div style="font-size: 0.72rem; color: #e0f2fe;">Transit Time (${sav.timeSavedPct}% Faster)</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 1.4rem; font-weight: 800; color: #facc15;">-₹ ${sav.fuelCostSavedRs.toLocaleString()}</div>
+                <div style="font-size: 0.72rem; color: #fef9c3;">Fuel Conserved</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 1.4rem; font-weight: 800; color: #4ade80;">1.2% Spoilage</div>
+                <div style="font-size: 0.72rem; color: #dcfce7;">vs 14.5% Traditional</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Side by Side Route Comparison -->
+          <div class="route-compare-columns">
+            <!-- 1. Inefficient Traditional Route -->
+            <div class="route-card inefficient">
+              <div>
+                <span class="route-header-tag">❌ Traditional Inefficient Route (Disorganized)</span>
+                <div class="route-path-summary">${ineff.pathSummary}</div>
+                <div style="font-size: 0.8rem; color: #7f1d1d; margin-bottom: 12px; background: #fee2e2; padding: 6px 10px; border-radius: var(--radius-sm);">
+                  ⚠️ <strong>Problem:</strong> ${ineff.backtrackingPenalty}. Uncoordinated individual driver booking causes chaotic backtracking.
+                </div>
+
+                <div class="route-stops-timeline">
+                  ${ineff.stops.map(s => `
+                    <div class="route-stop-row">
+                      <span class="route-stop-num">${s.seq}</span>
+                      <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #7f1d1d;">${s.location}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${s.action} • <strong>${s.km} km</strong></div>
+                      </div>
+                      <span style="font-size: 0.72rem; font-weight: 700; color: #b91c1c;">${s.status}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="route-metrics-bar">
+                <div class="route-metric-box">
+                  <div class="route-metric-val" style="color: #dc2626;">${ineff.totalDistanceKm} km</div>
+                  <div class="route-metric-lbl">Total Run</div>
+                </div>
+                <div class="route-metric-box">
+                  <div class="route-metric-val" style="color: #dc2626;">${ineff.estimatedDurationHours} hrs</div>
+                  <div class="route-metric-lbl">Transit Delay</div>
+                </div>
+                <div class="route-metric-box">
+                  <div class="route-metric-val" style="color: #dc2626;">₹ ${ineff.fuelCostRs.toLocaleString()}</div>
+                  <div class="route-metric-lbl">Fuel Expense</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. AI-Optimized Multi-Stop Route -->
+            <div class="route-card optimized">
+              <div>
+                <span class="route-header-tag">✅ AI-Optimized Pooled Route (Zero Backtracking)</span>
+                <div class="route-path-summary">${opt.pathSummary}</div>
+                <div style="font-size: 0.8rem; color: #14532d; margin-bottom: 12px; background: #dcfce7; padding: 6px 10px; border-radius: var(--radius-sm);">
+                  ✨ <strong>AI Intelligence:</strong> Consolidated 4,000 kg order. Mathematically ordered stops with zero reverse tracking and pre-cooled preservation.
+                </div>
+
+                <div class="route-stops-timeline">
+                  ${opt.stops.map(s => `
+                    <div class="route-stop-row">
+                      <span class="route-stop-num">${s.seq}</span>
+                      <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #14532d;">${s.location}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${s.action} • <strong>${s.km} km</strong></div>
+                      </div>
+                      <span style="font-size: 0.72rem; font-weight: 700; color: #166534;">${s.status}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="route-metrics-bar">
+                <div class="route-metric-box">
+                  <div class="route-metric-val" style="color: #15803d;">${opt.totalDistanceKm} km</div>
+                  <div class="route-metric-lbl">Distance (-34%)</div>
+                </div>
+                <div class="route-metric-box">
+                  <div class="route-metric-val" style="color: #15803d;">${opt.estimatedDurationHours} hrs</div>
+                  <div class="route-metric-lbl">Duration (-42%)</div>
+                </div>
+                <div class="route-metric-box">
+                  <div class="route-metric-val" style="color: #15803d;">₹ ${opt.fuelCostRs.toLocaleString()}</div>
+                  <div class="route-metric-lbl">Fuel (-₹7,200)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn btn-primary" onclick="window.FF_APP.showToast('🚀 Dispatching Standby Reefer KA-04-E-4421 along AI-Optimized TSP Route!', 'success')">
+              🚚 Dispatch Pooled Reefer on AI Route
+            </button>
+          </div>
+        </div>
+      `;
     }
   };
 })();

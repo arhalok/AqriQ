@@ -14,16 +14,30 @@
       if (window.FF_I18N && window.FF_I18N.init) {
         window.FF_I18N.init();
       }
+
+      // Initialize auth session and role isolation
+      if (window.FF_AUTH) {
+        window.FF_AUTH.init();
+        if (window.FF_AUTH.isLoggedIn) {
+          this.activeRole = window.FF_AUTH.currentRole || 'FARMER';
+        }
+      }
+
       this.bindEvents();
       this.updateLanguageStrings();
       this.renderCurrentView();
+
+      if (window.FF_AUTH) {
+        window.FF_AUTH.updateHeaderAuthUI();
+        window.FF_AUTH.renderRoleSubnav();
+      }
 
       // Show welcome toast
       setTimeout(() => {
         const lang = window.FF_I18N.currentLang;
         const msg = lang === 'hi' 
           ? '🌾 फार्मफ्लो में आपका स्वागत है। लॉजिस्टिक्स व ऑन-डिमांड ट्रांसपोर्ट का उपयोग करें!'
-          : (lang === 'kn' ? '🌾 ಫಾರ್ಮ್‌ಫ್ಲೋಗೆ ಸ್ವಾಗತ. ಆನ್-ಡಿಮ್ಯಾಂಡ್ ಕೃಷಿ ಸಾರಿಗೆ ಬಳಸಿ!' : '🌾 Welcome to FarmFlow. Explore the Logistics Hub & On-Demand Farm Transport!');
+          : (lang === 'kn' ? '🌾 ಫಾರ್ಮ್‌ಫ್ಲೋಗೆ ಸ್ವಾಗತ. ಆನ್-ಡಿಮ್ಯಾಂಡ್ ಕೃಷಿ ಸಾರಿಗೆ ಬಳಸಿ!' : '🌾 Welcome to FarmFlow. Direct Farmgate Coordination Network!');
         this.showToast(msg, 'success');
       }, 600);
     },
@@ -77,9 +91,26 @@
     },
 
     switchRole(role) {
+      // Enforce role isolation: a logged-in user can only navigate within their own role
+      if (window.FF_AUTH && window.FF_AUTH.isLoggedIn && role !== 'ONBOARDING') {
+        const currentAuthRole = window.FF_AUTH.currentRole;
+        if (role !== currentAuthRole) {
+          this.showToast(`🔒 You are logged in as ${currentAuthRole}. Log out first to access another portal.`, 'warning');
+          return;
+        }
+      }
+
       this.activeRole = role;
 
-      // Update tab active state
+      if (window.FF_AUTH) {
+        window.FF_AUTH.currentRole = role;
+        if (role !== 'ONBOARDING') {
+          window.FF_AUTH.isLoggedIn = true;
+          window.FF_AUTH.saveSession();
+        }
+      }
+
+      // Update tab active state if present
       document.querySelectorAll('.role-tab').forEach(tab => {
         if (tab.getAttribute('data-role') === role) {
           tab.classList.add('active');
@@ -91,6 +122,7 @@
       this.renderCurrentView();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
+
 
     updateLanguageStrings() {
       const i18n = window.FF_I18N;
@@ -106,6 +138,28 @@
       const container = document.getElementById('main-workspace');
       if (!container) return;
 
+      // Handle floating cart visibility: only visible for authenticated CONSUMER role
+      const cartBtn = document.getElementById('btn-floating-cart');
+      if (cartBtn) {
+        const isConsumerActive = window.FF_AUTH && window.FF_AUTH.isLoggedIn && this.activeRole === 'CONSUMER';
+        cartBtn.style.display = isConsumerActive ? 'flex' : 'none';
+      }
+
+      // 1. If not logged in and not in active onboarding flow, render the Pre-Login Gateway
+      if (window.FF_AUTH && !window.FF_AUTH.isLoggedIn && this.activeRole !== 'ONBOARDING') {
+        window.FF_AUTH.renderAuthGateway(container);
+        window.FF_AUTH.updateHeaderAuthUI();
+        window.FF_AUTH.renderRoleSubnav();
+        return;
+      }
+
+      // 2. Logged In: Update header auth and contextual sub-navigation
+      if (window.FF_AUTH) {
+        window.FF_AUTH.updateHeaderAuthUI();
+        window.FF_AUTH.renderRoleSubnav();
+      }
+
+      // 3. Strict Role-Isolated View Rendering
       switch (this.activeRole) {
         case 'FARMER':
           this.renderFarmerView(container);
@@ -125,8 +179,19 @@
         case 'ADMIN':
           this.renderAdminView(container);
           break;
+        case 'ONBOARDING':
+          this.renderOnboardingFlowView(container);
+          break;
         default:
           this.renderFarmerView(container);
+      }
+    },
+
+    renderOnboardingFlowView(container) {
+      if (window.FF_KYC && typeof window.FF_KYC.renderFullPageFlow === 'function') {
+        window.FF_KYC.renderFullPageFlow(container);
+      } else {
+        container.innerHTML = '<div style="padding: 40px; text-align: center;">Loading Onboarding Engine...</div>';
       }
     },
 
@@ -134,7 +199,40 @@
     // 1. FARMER-FIRST WORKBENCH
     // ========================================================================
     renderFarmerView(container) {
-      const farmer = window.FF_DATA.currentFarmer;
+      const subTab = (window.FF_AUTH && window.FF_AUTH.activeSubTab) || 'PRIMARY';
+      if (window.FF_FARMER_WORKFLOW) {
+        if (subTab === 'SELL') {
+          window.FF_FARMER_WORKFLOW.renderSellProducePipeline(container);
+          return;
+        } else if (subTab === 'TRANSPORT') {
+          window.FF_FARMER_WORKFLOW.renderTransportBooking(container);
+          return;
+        } else if (subTab === 'DBT') {
+          window.FF_FARMER_WORKFLOW.renderBankDBT(container);
+          return;
+        } else if (subTab === 'VOICE') {
+          window.FF_FARMER_WORKFLOW.renderKisanVani(container);
+          return;
+        } else {
+          window.FF_FARMER_WORKFLOW.renderWorkbench(container);
+          return;
+        }
+      }
+
+      const activeAcc = window.FF_KYC ? window.FF_KYC.getActiveAccount() : null;
+      const isFarmerAcc = activeAcc && activeAcc.actorType === 'FARMER';
+      const farmer = isFarmerAcc ? { 
+        ...window.FF_DATA.currentFarmer, 
+        name: activeAcc.name, 
+        phone: activeAcc.phone, 
+        trustScore: activeAcc.trustScore, 
+        acres: activeAcc.acres || 2.5,
+        location: activeAcc.farmLocation || window.FF_DATA.currentFarmer.location,
+        dbtStatus: activeAcc.kycStatus === 'VERIFIED' ? 'VERIFIED_AADHAAR_LINKED' : 'PENDING_VERIFICATION' 
+      } : window.FF_DATA.currentFarmer;
+      const isNewSeller = isFarmerAcc && activeAcc.trustScore <= 70;
+      const isCollisionFlagged = isFarmerAcc && activeAcc.kycStatus === 'FLAGGED_COLLISION';
+
       const weather = window.FF_DATA.weatherFeed;
       const distress = window.FF_DATA.distressSaleShield || {};
       const i18n = window.FF_I18N;
@@ -142,37 +240,43 @@
       const enam = window.FF_DATA.enamExtension || {};
 
       container.innerHTML = `
-        <!-- 1. OFFICIAL e-NAM EXTENSION SPOKE RIBBON (भारत सरकार e-NAM अधिकृत विलेज स्पोक) -->
-        <div class="enam-spoke-ribbon">
-          <div class="enam-spoke-content">
-            <div class="enam-emblem">🏛️</div>
-            <div class="enam-spoke-titles">
-              <h2>
-                <span>${isHi ? 'भारत सरकार e-NAM अधिकृत विलेज स्पोक' : 'e-NAM Certified Village Spoke & Aggregator'}</span>
-                <span class="enam-badge-pill">Spoke #${enam.spokeId || 'KA-KOL-042'}</span>
-              </h2>
-              <div class="enam-spoke-sub">
-                ${isHi ? 
-                  'हम e-NAM के पूरक (Extension) के रूप में कार्य करते हैं: 3 किमी में खेत से माल संग्रह, डिजिटल लोड-सेल ग्रेडिंग, और शून्य बिचौलिया कट।' : 
-                  'Operating on top of e-NAM: Village-level aggregation within 3km, IoT load-cell assaying, farmgate transport, and 100% direct bank DBT.'}
+        ${isCollisionFlagged ? `
+          <div class="gated-alert-banner danger" style="margin-bottom: 20px;">
+            <div class="gated-alert-icon">🚩</div>
+            <div class="gated-alert-body">
+              <div class="gated-alert-title">
+                <span>Aadhaar Collision Held for Manual Admin Review</span>
+                <span class="kyc-status-pill kyc-flagged">Flagged Collision</span>
+              </div>
+              <div class="gated-alert-desc">
+                ${activeAcc.notes || 'This Aadhaar token is already linked to another mobile number on file. Under Section 8 of the DPDP Act 2023, accounts are never silently overwritten or rejected. Direct sales are temporarily held until an Operations Admin clears the discrepancy.'}
+              </div>
+              <div class="gated-alert-actions">
+                <span style="font-size: 0.82rem; color: #9f1239; font-weight: 600;">📋 Under Admin Review — You will be notified once resolved.</span>
               </div>
             </div>
           </div>
-          <div class="enam-spoke-stats">
-            <div class="enam-stat-pill">
-              <span class="lbl">${isHi ? 'निकटतम स्पोक' : 'Nearest Spoke'}</span>
-              <span class="val">${enam.distanceToFarmerKm || '2.8'} km</span>
+        ` : ''}
+
+        ${isNewSeller ? `
+          <div style="background: #ecfdf5; border: 1.5px solid #86efac; border-radius: var(--radius-md); padding: 12px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 1.5rem;">🌱</span>
+              <div>
+                <div style="font-size: 0.92rem; font-weight: 800; color: #065f46;">
+                  ${farmer.name} • <span class="new-seller-badge">🌱 New Seller Badge Active</span>
+                </div>
+                <div style="font-size: 0.78rem; color: #047857; margin-top: 2px;">
+                  Neutral Trust Baseline: <strong>50/100</strong>. Per PS specification, new sellers receive a visible transparency badge rather than exclusionary quantity limits. Trust score increases with fulfilled harvest lots.
+                </div>
+              </div>
             </div>
-            <div class="enam-stat-pill">
-              <span class="lbl">${isHi ? 'मंडी टैक्स' : 'Mandi Tax'}</span>
-              <span class="val" style="color: #4ade80;">0% ZERO</span>
-            </div>
-            <div class="enam-stat-pill">
-              <span class="lbl">${isHi ? 'आज का सीधा भाव' : 'Direct Realization'}</span>
-              <span class="val">₹ 23.50/kg</span>
+            <div style="text-align: right;">
+              <span class="kyc-status-pill kyc-verified">Verhoeff Aadhaar Checksum Valid</span>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px;">DPDP Token: <code>${activeAcc.aadhaarToken || 'aadhaar_tok_...'}</code></div>
             </div>
           </div>
-        </div>
+        ` : ''}
 
         <!-- 2. KISAN VANI AUDIO ADVISORY HERO (किसान वाणी - आवाज में सुनें) -->
         <div class="kisan-voice-hero">
@@ -202,28 +306,6 @@
               <span>${isHi ? 'रोकें' : 'Stop'}</span>
             </button>
           </div>
-        </div>
-
-        <!-- PRACTICAL LIFECYCLE DEMO BANNER (खेत से खरीदार तक लाइव डेमो - SIH 2026 Judge Winner) -->
-        <div class="practical-demo-banner">
-          <div class="demo-banner-left">
-            <div class="demo-banner-icon">🎬</div>
-            <div>
-              <div class="demo-banner-title">
-                <span>${isHi ? 'प्रैक्टिकल लाइव डेमो: खेत से खरीदार और बैंक खाता' : 'Interactive 5-Stage Live Lifecycle Simulator'}</span>
-                <span class="badge" style="background: #f59e0b; color: #1e1b4b; font-size: 0.72rem; font-weight: 800;">SIH 2026 Practical Flow</span>
-              </div>
-              <div class="demo-banner-sub">
-                ${isHi ? 
-                  'देखें कैसे 15 मिनट में खेत पर गाड़ी आती है, डिजिटल कांटा होता है, और बिना किसी बिचौलिये के 2 घंटे में सीधे बैंक खाते में पैसे आते हैं।' : 
-                  'Experience how FarmFlow actually works: Demand matching, 100% bank escrow, farmgate EV dispatch, village IoT Brix assaying, and 2-hour Aadhaar DBT payout.'}
-              </div>
-            </div>
-          </div>
-          <button class="btn-run-demo" onclick="window.FF_APP.runPracticalDemoModal(1)">
-            <span>▶️</span>
-            <span>${isHi ? 'लाइव डेमो चलाएं (Run Demo)' : 'Run Live Demo'}</span>
-          </button>
         </div>
 
         <!-- 3. ILLITERATE-FRIENDLY 5 BIG TACTILE ACTION TILES (बड़ी रंगीन टच टाइल्स) -->
@@ -283,7 +365,7 @@
           </div>
 
           <!-- Tile 4: ❄️ सोलर कोल्ड रूम व 70% ऋण -->
-          <div class="kisan-tile tile-storage" onclick="window.FF_APP.claimDistressShield()">
+          <div class="kisan-tile tile-storage" onclick="window.FF_APP.openColdSafeModal()">
             <div class="kisan-tile-top">
               <div class="kisan-tile-icon">❄️</div>
               <button class="btn-listen-card" onclick="event.stopPropagation(); window.FF_VOICE.narrateCard('storage')" title="सुनें">
@@ -352,100 +434,9 @@
           </div>
         </div>
 
-        <!-- 3 Essential Clean Metric Cards (Minimalist & High Clarity) -->
-        <div class="grid-3" style="margin-bottom: 24px;">
-          <div class="farmer-stat-card">
-            <div class="farmer-stat-icon stat-icon-green">₹</div>
-            <div class="farmer-stat-info">
-              <div class="farmer-stat-val">₹ 23.50 / kg</div>
-              <div class="farmer-stat-label">${i18n.get('netRateCard')}</div>
-              <div class="farmer-stat-tag">📈 +₹ 12.50 ${i18n.get('todayMandiRate')}</div>
-            </div>
-          </div>
-          <div class="farmer-stat-card">
-            <div class="farmer-stat-icon stat-icon-amber">🏦</div>
-            <div class="farmer-stat-info">
-              <div class="farmer-stat-val">₹ ${farmer.walletBalanceRs.toLocaleString()}.00</div>
-              <div class="farmer-stat-label">${i18n.get('walletCard')}</div>
-              <div class="farmer-stat-tag">⚡ Direct DBT Linked (SBI A/c ••••8842)</div>
-            </div>
-          </div>
-          <div class="farmer-stat-card">
-            <div class="farmer-stat-icon stat-icon-sky">📦</div>
-            <div class="farmer-stat-info">
-              <div class="farmer-stat-val">${(farmer.activeListings || []).length} Deals Active</div>
-              <div class="farmer-stat-label">${i18n.get('activeDealsCard')}</div>
-              <div class="farmer-stat-tag">FreshMart 650 kg Lot</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 5. AUTOMATED DISTRESS SALE & PRICE CRASH PROTECTION SHIELD BANNER -->
-        ${distress.isCrashAlertActive ? `
-          <div class="distress-shield-banner">
-            <div class="distress-header-row">
-              <div>
-                <span class="distress-tag-pill">🚨 ${isHi ? 'मंडी दाम क्रैश चेतावनी' : 'APMC Mandi Crash Alert'}</span>
-                <h3 class="distress-title">${i18n.get('distressTitle')}</h3>
-                <div class="distress-msg">${distress.alertMessage}</div>
-              </div>
-            </div>
-            <div class="distress-stats-grid">
-              <div class="distress-stat-box">
-                <div class="distress-stat-lbl">${isHi ? 'मंडी क्रैश भाव' : 'Mandi Crash Rate'}</div>
-                <div class="distress-stat-val" style="color: #dc2626;">₹ ${distress.currentMandiCrashRate.toFixed(2)} / kg</div>
-              </div>
-              <div class="distress-stat-box">
-                <div class="distress-stat-lbl">${isHi ? 'लागत खर्च' : 'Cultivation Cost'}</div>
-                <div class="distress-stat-val">₹ ${distress.baselineCultivationCost.toFixed(2)} / kg</div>
-              </div>
-              <div class="distress-stat-box">
-                <div class="distress-stat-lbl">${isHi ? 'सोलर कोल्ड किराया' : 'Solar Cold Rental'}</div>
-                <div class="distress-stat-val" style="color: #16a34a;">₹ ${distress.rentalCostPerCrateDay.toFixed(2)} / day</div>
-              </div>
-              <div class="distress-stat-box">
-                <div class="distress-stat-lbl">${isHi ? 'तुरंत e-NWR अग्रिम ऋण' : 'Instant 70% e-NWR Loan'}</div>
-                <div class="distress-stat-val" style="color: #0284c7;">₹ ${distress.eNwrLoanAdvanceRatePerKg.toFixed(2)} / kg</div>
-              </div>
-            </div>
-            <div class="distress-action-tray">
-              <div>
-                <strong style="color: #9a3412;">${distress.solutionTitle}</strong>
-                <div style="font-size: 0.8rem; color: #7c2d12;">${distress.coldStorageFacility} • Expected price recovery: ₹${distress.expectedRecoveryRate.toFixed(2)} in ${distress.recoveryHorizonDays}</div>
-              </div>
-              <button class="btn-claim-shield" onclick="window.FF_APP.claimDistressShield()">
-                ${i18n.get('btnClaimShield')}
-              </button>
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- 2. LIVE DIRECT BUYER DEMAND BOARD (सीधे खरीदार मांग बोर्ड) -->
-        <div id="buyer-demands-section" class="demands-board-wrap">
-          <div class="demands-board-header">
-            <div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 1.5rem;">🏬</span>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--primary-900); margin: 0;">
-                  ${i18n.get('buyerDemandTitle')}
-                </h3>
-                <span class="badge badge-success">✓ 100% Escrow Secured</span>
-              </div>
-              <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">
-                ${i18n.get('buyerDemandSub')}
-              </div>
-            </div>
-            <div class="crop-selector-pills">
-              <button class="crop-pill active" onclick="window.FF_APP.filterBuyerDemands('all', this)">All Demands</button>
-              <button class="crop-pill" onclick="window.FF_APP.filterBuyerDemands('tomato', this)">🍅 Tomato</button>
-              <button class="crop-pill" onclick="window.FF_APP.filterBuyerDemands('onion', this)">🧅 Onion</button>
-              <button class="crop-pill" onclick="window.FF_APP.filterBuyerDemands('potato', this)">🥔 Potato</button>
-              <button class="crop-pill" onclick="window.FF_APP.filterBuyerDemands('capsicum', this)">🫑 Capsicum</button>
-            </div>
-          </div>
-          <div id="demands-grid-content" class="demands-grid">
-            ${this.renderBuyerDemandCards('all')}
-          </div>
+        <!-- UNIFIED "WHERE SHOULD I SELL?" BEST PRICE & BUYER DECISION ENGINE -->
+        <div id="unified-decision-container">
+          ${this.renderUnifiedMarketDecisionEngine()}
         </div>
 
         <!-- UPGRADED: "MY ACTIVE HARVEST CONTRACTS & SPOKE INTAKE JOURNEY" COMPONENT -->
@@ -511,30 +502,6 @@
           </div>
         </div>
 
-        <!-- HERO FEATURE: "WHERE SHOULD I SELL?" MULTI-MANDI ADVISOR -->
-        <div id="where-to-sell-section" class="market-advisor-box">
-          <div class="market-advisor-header">
-            <div class="advisor-title-area">
-              <div class="advisor-title">
-                <span>🗺️</span>
-                <span>${i18n.get('whereToSellTitle')}</span>
-              </div>
-              <div class="advisor-subtitle">${i18n.get('whereToSellSub')}</div>
-            </div>
-
-            <div class="crop-selector-pills">
-              <button class="crop-pill active" onclick="window.FF_APP.changeLogisticsCrop('tomato', this)">🍅 Tomato</button>
-              <button class="crop-pill" onclick="window.FF_APP.changeLogisticsCrop('onion', this)">🧅 Onion</button>
-              <button class="crop-pill" onclick="window.FF_APP.changeLogisticsCrop('potato', this)">🥔 Potato</button>
-              <button class="crop-pill" onclick="window.FF_APP.changeLogisticsCrop('capsicum', this)">🫑 Capsicum</button>
-            </div>
-          </div>
-
-          <div id="market-advisor-content">
-            <!-- Rendered by window.FF_LOGISTICS -->
-          </div>
-        </div>
-
         <!-- Hyperlocal Agro-Weather & Spray Advisory -->
         <div class="weather-advisory-strip">
           <div class="weather-metric">
@@ -561,30 +528,6 @@
           <div class="spray-advice-box">
             <div class="spray-title">🌱 ${i18n.get('sprayAdvice')}</div>
             <div class="spray-msg">${weather.sprayAdvisory.recommendation}</div>
-          </div>
-        </div>
-
-        <!-- SECTION: Live Mandi vs FarmFlow Net Realization Comparator -->
-        <div id="mandi-comparator-section" class="mandi-comparator-wrap">
-          <div class="comparator-header">
-            <div class="comparator-title-area">
-              <div class="comparator-title">
-                <span>⚖️</span>
-                <span>${i18n.get('mandiCompTitle')}</span>
-              </div>
-              <div class="comparator-subtitle">${i18n.get('mandiCompSub')}</div>
-            </div>
-
-            <div class="crop-selector-pills">
-              <button class="crop-pill active" onclick="window.FF_APP.changeCrop('tomato', this)">🍅 ${isHi ? 'टमाटर' : 'Tomato'}</button>
-              <button class="crop-pill" onclick="window.FF_APP.changeCrop('onion', this)">🧅 ${isHi ? 'प्याज' : 'Onion'}</button>
-              <button class="crop-pill" onclick="window.FF_APP.changeCrop('potato', this)">🥔 ${isHi ? 'आलू' : 'Potato'}</button>
-              <button class="crop-pill" onclick="window.FF_APP.changeCrop('capsicum', this)">🫑 ${isHi ? 'शिमला मिर्च' : 'Capsicum'}</button>
-            </div>
-          </div>
-
-          <div id="mandi-comparator-content">
-            <!-- Rendered by window.FF_MANDI -->
           </div>
         </div>
 
@@ -640,61 +583,14 @@
             </div>
           </div>
         </div>
-
-        <!-- SECTION: Nearby Solar Micro-Cold Storage -->
-        <div id="cold-storage-section" class="ff-card" style="margin-bottom: 28px;">
-          <div class="ff-card-header">
-            <div>
-              <div class="ff-card-title">
-                <span>❄️</span>
-                <span>${isHi ? 'सोलर फार्म-गेट माइक्रो कोल्ड स्टोरेज' : 'Solar-Powered Farm-Gate Micro Cold Storages'}</span>
-              </div>
-              <div class="ff-card-subtitle">
-                ${isHi ? 'मंडी में दाम गिरने पर मजबूरी में फसल बेचने से बचें। 100% सौर ऊर्जा संचालित।' : 'Store produce near the farm to prevent distress sales when market dips. Powered by 100% solar PV.'}
-              </div>
-            </div>
-            <span class="badge badge-info">${isHi ? 'शून्य संकट बिक्री' : 'Zero Distress Selling'}</span>
-          </div>
-
-          <div class="cold-storage-grid">
-            ${window.FF_DATA.coldStorages.map(cs => `
-              <div class="cold-card">
-                <div class="cold-header">
-                  <div class="cold-name">${cs.name}</div>
-                  <span class="cold-distance">${cs.distanceKm} km ${isHi ? 'दूर' : 'away'}</span>
-                </div>
-                <div style="font-size: 0.82rem; color: var(--text-muted);">${cs.location}</div>
-                <div class="cold-stats-row">
-                  <span>${isHi ? 'उपलब्ध क्रेट्स:' : 'Available Space:'}</span>
-                  <span class="cold-stats-val" style="color: #16a34a;">${cs.availableCrates} Crates</span>
-                </div>
-                <div class="cold-stats-row">
-                  <span>${isHi ? 'तापमान:' : 'Temperature:'}</span>
-                  <span class="cold-stats-val">${cs.tempC}</span>
-                </div>
-                <div class="cold-stats-row">
-                  <span>${isHi ? 'किराया:' : 'Rental Rate:'}</span>
-                  <span class="cold-stats-val" style="color: var(--primary-700);">${cs.ratePerCrateDay}</span>
-                </div>
-                <button class="btn-book-slot" onclick="window.FF_APP.bookColdStorage('${cs.name}')">
-                  ${i18n.get('bookColdSlot')}
-                </button>
-              </div>
-            `).join('')}
-          </div>
-        </div>
       `;
 
       // Render Sub-Components
-      window.FF_LOGISTICS.renderAdvisor();
-      window.FF_MANDI.renderComparator();
       window.FF_DOCTOR.renderResults();
     },
 
     changeLogisticsCrop(cropKey, btnEl) {
-      document.querySelectorAll('#where-to-sell-section .crop-pill').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
-      window.FF_LOGISTICS.setCrop(cropKey);
+      this.changeDecisionCrop(cropKey, btnEl);
     },
 
     withdrawFarmerDBT() {
@@ -711,10 +607,1139 @@
       window.FF_VOICE.speak(`Amount of ${amount} rupees has been credited directly to your bank account via D B T.`);
     },
 
+    openColdSafeModal() {
+      const shield = window.FF_DATA.distressSaleShield || {
+        alertMessage: 'Kolar APMC Mandi Tomato prices crashed by 42% due to temporary supply glut. Traditional farmers are losing ₹5.50/kg or dumping crops on highway!',
+        currentMandiCrashRate: 9.00,
+        baselineCultivationCost: 14.50,
+        rentalCostPerCrateDay: 1.50,
+        eNwrLoanAdvanceRatePerKg: 16.50,
+        expectedRecoveryRate: 25.00,
+        recoveryHorizonDays: '8 to 12 Days',
+        coldStorageFacility: 'Kolar Gramin Solar Cold Room (Unit 2, 4.2 km away)',
+        solutionTitle: 'Solar Cold Storage + 70% Instant e-NWR Cash Advance'
+      };
+      const storages = window.FF_DATA.coldStorages || [];
+      const i18n = window.FF_I18N;
+      const isHi = i18n.currentLang === 'hi';
+      const isKn = i18n.currentLang === 'kn';
+
+      const modalBox = document.getElementById('modal-box');
+      if (!modalBox) return;
+
+      modalBox.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.4rem;">❄️</span>
+            <span>${isHi ? '४. कोल्ड सेफ एवं 70% अग्रिम ऋण हब' : (isKn ? '೪. ಕೋಲ್ಡ್ ಸೇಫ್ & 70% ಮುಂಗಡ ಸಾಲ ಹಬ್' : '4. Cold Safe & 70% Advance Loan Hub')}</span>
+          </div>
+          <button class="modal-close-btn" onclick="window.FF_APP.closeModal()">✕</button>
+        </div>
+
+        <div class="modal-body" style="max-height: 78vh; overflow-y: auto; padding: 20px;">
+          <!-- 1. AUTOMATED DISTRESS SALE & PRICE CRASH PROTECTION SHIELD (IMAGE 2) -->
+          <div class="distress-shield-banner" style="margin-bottom: 24px;">
+            <div class="distress-header-row">
+              <div>
+                <span class="distress-tag-pill">🚨 ${isHi ? 'मंडी दाम क्रैश चेतावनी' : 'APMC MANDI CRASH ALERT'}</span>
+                <h3 class="distress-title">${i18n.get('distressTitle')}</h3>
+                <div class="distress-msg">${shield.alertMessage}</div>
+              </div>
+            </div>
+
+            <div class="distress-stats-grid">
+              <div class="distress-stat-box">
+                <div class="distress-stat-lbl">${isHi ? 'मंडी क्रैश भाव' : 'MANDI CRASH RATE'}</div>
+                <div class="distress-stat-val" style="color: #dc2626;">₹ ${shield.currentMandiCrashRate.toFixed(2)} / kg</div>
+              </div>
+              <div class="distress-stat-box">
+                <div class="distress-stat-lbl">${isHi ? 'लागत खर्च' : 'CULTIVATION COST'}</div>
+                <div class="distress-stat-val">₹ ${shield.baselineCultivationCost.toFixed(2)} / kg</div>
+              </div>
+              <div class="distress-stat-box">
+                <div class="distress-stat-lbl">${isHi ? 'सोलर कोल्ड किराया' : 'SOLAR COLD RENTAL'}</div>
+                <div class="distress-stat-val" style="color: #16a34a;">₹ ${shield.rentalCostPerCrateDay.toFixed(2)} / day</div>
+              </div>
+              <div class="distress-stat-box">
+                <div class="distress-stat-lbl">${isHi ? 'तुरंत 70% e-NWR ऋण' : 'INSTANT 70% E-NWR LOAN'}</div>
+                <div class="distress-stat-val" style="color: #0284c7;">₹ ${shield.eNwrLoanAdvanceRatePerKg.toFixed(2)} / kg</div>
+              </div>
+            </div>
+
+            <!-- Interactive Loan Disbursal Box -->
+            <div style="background: #ffffff; border: 1.5px solid #fdba74; border-radius: var(--radius-lg); padding: 16px; margin: 16px 0 10px 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <div style="font-weight: 800; color: #9a3412; font-size: 0.95rem;">
+                    🛡️ ${isHi ? 'सोलर कोल्ड स्टोरेज में रखें एवं 70% तुरंत अग्रिम ऋण पाएं' : 'Store in Solar Cold Room & Get Instant 70% Advance Cash'}
+                  </div>
+                  <div style="font-size: 0.8rem; color: #7c2d12;">
+                    ${shield.coldStorageFacility} • Expected price recovery: ₹${shield.expectedRecoveryRate.toFixed(2)} in ${shield.recoveryHorizonDays}
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <label style="font-size: 0.85rem; font-weight: 700; color: #9a3412;">Quantity:</label>
+                  <select id="cold-loan-qty" class="form-control" style="width: 140px; padding: 4px 8px;" onchange="window.FF_APP.updateColdLoanPreview(this.value)">
+                    <option value="500">500 kg (20 Crates)</option>
+                    <option value="650" selected>650 kg (26 Crates)</option>
+                    <option value="1000">1,000 kg (40 Crates)</option>
+                    <option value="2000">2,000 kg (80 Crates)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="cold-loan-preview-box" style="margin-top: 12px; padding: 10px 14px; background: #fff7ed; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="font-size: 0.85rem; color: #7c2d12;">Disbursal to SBI A/c ••••8842: <strong id="cold-loan-amount" style="font-size: 1.15rem; color: #15803d;">₹ 10,725.00</strong> (70% e-NWR)</span>
+                <span style="font-size: 0.78rem; color: #9a3412;">Zero loss vs Mandi distress sale!</span>
+              </div>
+            </div>
+
+            <div class="distress-action-tray">
+              <div>
+                <strong style="color: #9a3412;">${shield.solutionTitle}</strong>
+                <div style="font-size: 0.8rem; color: #7c2d12;">${shield.coldStorageFacility} • Expected price recovery: ₹${shield.expectedRecoveryRate.toFixed(2)} in ${shield.recoveryHorizonDays}</div>
+              </div>
+              <button class="btn-claim-shield" onclick="window.FF_APP.claimDistressShield()">
+                ${i18n.get('btnClaimShield')}
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. SOLAR-POWERED FARM-GATE MICRO COLD STORAGES NETWORK (IMAGE 4) -->
+          <div style="border-top: 1px solid var(--border-light); padding-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: var(--primary-900); display: flex; align-items: center; gap: 6px;">
+                  <span>❄️</span>
+                  <span>${isHi ? 'सोलर फार्म-गेट माइक्रो कोल्ड स्टोरेज' : 'Solar-Powered Farm-Gate Micro Cold Storages'}</span>
+                </div>
+                <div style="font-size: 0.82rem; color: var(--text-muted);">
+                  ${isHi ? 'मंडी में दाम गिरने पर मजबूरी में फसल बेचने से बचें। 100% सौर ऊर्जा संचालित।' : 'Store produce near the farm to prevent distress sales when market dips. Powered by 100% solar PV.'}
+                </div>
+              </div>
+              <span class="badge badge-info" style="font-size: 0.75rem;">ZERO DISTRESS SELLING</span>
+            </div>
+
+            <div class="cold-storage-grid">
+              ${storages.map(cs => `
+                <div class="cold-card" style="margin-bottom: 0;">
+                  <div class="cold-header">
+                    <div class="cold-name">${cs.name}</div>
+                    <span class="cold-distance">${cs.distanceKm} km ${isHi ? 'दूर' : 'away'}</span>
+                  </div>
+                  <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">${cs.location}</div>
+                  <div class="cold-stats-row">
+                    <span>${isHi ? 'उपलब्ध स्पेस:' : 'Available Space:'}</span>
+                    <span class="cold-stats-val" style="color: #16a34a; font-weight: 800;">${cs.availableCrates} Crates</span>
+                  </div>
+                  <div class="cold-stats-row">
+                    <span>${isHi ? 'तापमान:' : 'Temperature:'}</span>
+                    <span class="cold-stats-val">${cs.tempC}</span>
+                  </div>
+                  <div class="cold-stats-row">
+                    <span>${isHi ? 'किराया:' : 'Rental Rate:'}</span>
+                    <span class="cold-stats-val" style="color: var(--primary-700); font-weight: 700;">${cs.ratePerCrateDay}</span>
+                  </div>
+                  <button class="btn btn-primary btn-sm btn-block" style="margin-top: 12px; font-weight: 700;" onclick="window.FF_APP.bookColdSlot('${cs.id}')">
+                    ${i18n.get('bookColdSlot')}
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 0.8rem; color: var(--text-muted);">
+            🌱 NABARD WDRA Accredited Solar Cold Corridor • Kolar District
+          </div>
+          <button class="btn btn-secondary" onclick="window.FF_APP.closeModal()">Close</button>
+        </div>
+      `;
+
+      this.openModal();
+    },
+
+    updateColdLoanPreview(qtyKg) {
+      const kg = Number(qtyKg) || 650;
+      const rate = 16.50;
+      const amount = (kg * rate).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const el = document.getElementById('cold-loan-amount');
+      if (el) el.textContent = `₹ ${amount}`;
+    },
+
+    bookColdSlot(facilityId) {
+      const facility = (window.FF_DATA.coldStorages || []).find(f => f.id === facilityId);
+      if (!facility) return;
+
+      if (facility.availableCrates <= 0) {
+        this.showToast(`⚠️ ${facility.name} is full. Please pick another facility.`, 'warning');
+        return;
+      }
+
+      facility.availableCrates = Math.max(0, facility.availableCrates - 20);
+      this.showToast(`❄️ Slot Reserved! 20 Crates booked at ${facility.name}. Rental: ${facility.ratePerCrateDay}.`, 'success');
+      window.FF_VOICE.speak(`Cold storage slot booked at ${facility.name}. Twenty crates reserved to prevent distress sale.`);
+      this.openColdSafeModal();
+    },
+
+    // ========================================================================
+    // UNIFIED "WHERE SHOULD I SELL?" BEST PRICE & BUYER DECISION ENGINE
+    // Integrates Comparable Buyers, Live Demands, Multi-Market Advisor & Mandi Net Realization
+    // ========================================================================
+    renderUnifiedMarketDecisionEngine(selectedCrop, selectedQty, selectedSubView) {
+      const i18n = window.FF_I18N;
+      const isHi = i18n.currentLang === 'hi';
+      const isKn = i18n.currentLang === 'kn';
+
+      this.decisionCrop = selectedCrop || this.decisionCrop || 'tomato';
+      this.decisionQty = Number(selectedQty) || this.decisionQty || 1000;
+      this.decisionSubView = selectedSubView || this.decisionSubView || 'BUYERS';
+
+      const crop = this.decisionCrop;
+      const qty = this.decisionQty;
+      const subView = this.decisionSubView;
+
+      const cropMetadata = {
+        tomato: { name: isHi ? 'टमाटर' : (isKn ? 'ಟೊಮ್ಯಾಟೊ' : 'Tomato'), icon: '🍅' },
+        onion: { name: isHi ? 'प्याज' : (isKn ? 'ಈರುಳ್ಳಿ' : 'Onion'), icon: '🧅' },
+        potato: { name: isHi ? 'आलू' : (isKn ? 'ಆಲೂಗಡ್ಡೆ' : 'Potato'), icon: '🥔' },
+        capsicum: { name: isHi ? 'शिमला मिर्च' : (isKn ? 'ದಪ್ಪ ಮೆಣಸಿನಕಾಯಿ' : 'Capsicum'), icon: '🫑' }
+      };
+
+      const marketDatasets = {
+        tomato: {
+          mandiHeadline: 16.00,
+          mandiDeductions: { commission: 1.36, hamali: 2.20, weighTheft: 1.10, waste: 0.57 },
+          mandiNet: 10.77,
+          buyers: [
+            {
+              id: 'BUYER-02',
+              name: 'Royal Palace Hotels & Luxury Dining',
+              sub: isHi ? 'प्रीमियम होटल नेटवर्क' : 'Premium Hospitality Group',
+              icon: '🏨',
+              grade: 'Grade A+ Native/Cherry',
+              neededKg: 400,
+              grossRate: 27.50,
+              netTakeHome: 24.20,
+              netFarmerTakeHome: 24.20,
+              pickup: 'Insulated Chilled Transit (₹3.30/kg)',
+              escrowBank: 'SBI Bank Smart Escrow',
+              escrowLocked: 11000,
+              rating: 4.9,
+              isBest: true,
+              badge: i18n.get('bestTakeHomeBadge')
+            },
+            {
+              id: 'BUYER-01',
+              name: 'FreshMart Hypermarkets',
+              sub: isHi ? 'संगठित सुपरमार्केट चेन' : 'Organized Supermarket Chain',
+              icon: '🏬',
+              grade: 'Grade A Table',
+              neededKg: 650,
+              grossRate: 26.00,
+              netTakeHome: 23.50,
+              netFarmerTakeHome: 23.50,
+              pickup: '15-min EV Farmgate Pickup (₹2.50/kg)',
+              escrowBank: 'ICICI Bank Smart Escrow',
+              escrowLocked: 16900,
+              rating: 4.9,
+              isBest: false,
+              badge: isHi ? 'सत्यापित रिटेल चेन' : 'Verified Retail Chain'
+            },
+            {
+              id: 'BUYER-03',
+              name: 'Bengaluru Housing Societies Collective',
+              sub: isHi ? 'सोसायटी डायरेक्ट ग्रुप-बाय' : 'Direct Consumer Group-Buy',
+              icon: '🏢',
+              grade: 'Table Fresh Grade',
+              neededKg: 1200,
+              grossRate: 25.00,
+              netTakeHome: 22.80,
+              netFarmerTakeHome: 22.80,
+              pickup: 'Pooled Spoke Carrier (₹2.20/kg)',
+              escrowBank: 'Razorpay Escrow Hub',
+              escrowLocked: 30000,
+              rating: 4.8,
+              isBest: false,
+              badge: isHi ? 'सामूहिक खरीद' : 'Group-Buy Direct'
+            },
+            {
+              id: 'BUYER-04',
+              name: 'CloudKitchen Culinary Processing Hub',
+              sub: isHi ? 'थोक खाद्य प्रसंस्करण' : 'Bulk Food Prep & Kitchens',
+              icon: '🍽️',
+              grade: 'Grade B/A High Yield',
+              neededKg: 800,
+              grossRate: 23.00,
+              netTakeHome: 21.00,
+              netFarmerTakeHome: 21.00,
+              pickup: 'Bulk E-Loader (₹2.00/kg)',
+              escrowBank: 'HDFC Escrow Vault',
+              escrowLocked: 18400,
+              rating: 4.7,
+              isBest: false,
+              badge: isHi ? 'दैनिक थोक मांग' : 'High Daily Volume'
+            }
+          ],
+          destinations: [
+            {
+              id: 'DEST_FARMFLOW',
+              name: isHi ? 'फार्मफ्लो सोलर स्पोक (कोलार)' : 'FarmFlow Solar Spoke (Kolar)',
+              distKm: '4.2 km',
+              badge: '🌟 BEST NET REALIZATION',
+              isBest: true,
+              isTrap: false,
+              headlineRate: 27.50,
+              transportCost: 3.30,
+              commissionCost: 0.00,
+              hamaliCost: 0.00,
+              spoilageCost: 0.00,
+              netRate: 24.20,
+              payment: '⚡ Instant 2-hr Aadhaar DBT',
+              escrow: '100% Bank Escrow Locked',
+              note: isHi ? 'खेत पर 15 मिनट में ई-लोडर पिकअप। शून्य बिचौलिया, शून्य तौल चोरी।' : 'Farmgate 15-min EV pickup. Zero middlemen, zero scale tampering.'
+            },
+            {
+              id: 'DEST_LOCAL_MANDI',
+              name: isHi ? 'स्थानीय कोलार APMC मंडी यार्ड' : 'Local Kolar APMC Market Yard',
+              distKm: '8.0 km',
+              badge: '⚠️ Traditional Mandi',
+              isBest: false,
+              isTrap: false,
+              headlineRate: 16.00,
+              transportCost: 1.20,
+              commissionCost: 1.36,
+              hamaliCost: 2.20,
+              spoilageCost: 0.47,
+              netRate: 10.77,
+              payment: '⏳ 15-45 Days Credit Note',
+              escrow: 'Zero Escrow (Informal Chitti)',
+              note: isHi ? '8.5% आढ़तिया कमीशन व अनौपचारिक कांटे पर 5% वजन चोरी से मुनाफा घटता है।' : '8.5% Arhtiya commission, ₹2.20 hamali and 5% unverified beam scale loss.'
+            },
+            {
+              id: 'DEST_CITY_MANDI',
+              name: isHi ? 'बेंगलुरु थोक मंडी यार्ड (आज़ादपुर/वाशी)' : 'Bengaluru Wholesale Yard (City APMC)',
+              distKm: '58.0 km',
+              badge: '❌ DECEPTIVE TRAP (धोखा)',
+              isBest: false,
+              isTrap: true,
+              headlineRate: 24.00,
+              transportCost: 5.50,
+              commissionCost: 2.16,
+              hamaliCost: 2.80,
+              spoilageCost: 4.32,
+              netRate: 9.22,
+              payment: '⏳ 10-20 Days Delayed Credit',
+              escrow: 'Zero Escrow',
+              note: isHi ? 'उच्च ₹24 का लालच! भारी भाड़ा (₹5.50) और ट्रैफिक में 18% फसल सड़ने से लोकल मंडी से भी कम बचता है।' : 'Deceptive headline rate! Long freight & 18% rot in traffic leaves less than local mandi.'
+            }
+          ]
+        },
+        onion: {
+          mandiHeadline: 22.00,
+          mandiDeductions: { commission: 1.76, hamali: 2.50, weighTheft: 1.20, waste: 0.58 },
+          mandiNet: 15.96,
+          buyers: [
+            {
+              id: 'BUYER-02',
+              name: 'Royal Palace Hotels & Luxury Dining',
+              sub: 'Luxury Hospitality Network',
+              icon: '🏨',
+              grade: 'Grade A Large Uniform',
+              neededKg: 500,
+              grossRate: 34.00,
+              netTakeHome: 30.50,
+              netFarmerTakeHome: 30.50,
+              pickup: 'Insulated Chilled Reefer (₹3.50/kg)',
+              escrowBank: 'SBI Escrow',
+              escrowLocked: 17000,
+              rating: 4.9,
+              isBest: true,
+              badge: i18n.get('bestTakeHomeBadge')
+            },
+            {
+              id: 'BUYER-01',
+              name: 'FreshMart Hypermarkets',
+              sub: 'Organized Supermarket Chain',
+              icon: '🏬',
+              grade: 'Grade A Red Medium',
+              neededKg: 1200,
+              grossRate: 32.00,
+              netTakeHome: 29.10,
+              netFarmerTakeHome: 29.10,
+              pickup: 'Farmgate EV Pickup (₹2.90/kg)',
+              escrowBank: 'ICICI Escrow',
+              escrowLocked: 38400,
+              rating: 4.9,
+              isBest: false,
+              badge: 'Verified Buyer'
+            },
+            {
+              id: 'BUYER-03',
+              name: 'Bengaluru Housing Societies Collective',
+              sub: 'Direct Consumer Group-Buy',
+              icon: '🏢',
+              grade: 'Table Grade Medium',
+              neededKg: 1500,
+              grossRate: 31.00,
+              netTakeHome: 28.20,
+              netFarmerTakeHome: 28.20,
+              pickup: 'Pooled Village E-Loader (₹2.80/kg)',
+              escrowBank: 'Razorpay Escrow',
+              escrowLocked: 46500,
+              rating: 4.8,
+              isBest: false,
+              badge: 'Community Pool'
+            },
+            {
+              id: 'BUYER-04',
+              name: 'CloudKitchen Culinary Hub',
+              sub: 'Commercial Food Processing',
+              icon: '🍽️',
+              grade: 'Grade B Bulk',
+              neededKg: 2000,
+              grossRate: 28.00,
+              netTakeHome: 25.40,
+              netFarmerTakeHome: 25.40,
+              pickup: 'Direct Spoke Carrier (₹2.60/kg)',
+              escrowBank: 'HDFC Escrow',
+              escrowLocked: 56000,
+              rating: 4.7,
+              isBest: false,
+              badge: 'Bulk Order'
+            }
+          ],
+          destinations: [
+            {
+              id: 'DEST_FARMFLOW',
+              name: 'FarmFlow Solar Spoke (Kolar)',
+              distKm: '4.2 km',
+              badge: '🌟 BEST NET REALIZATION',
+              isBest: true,
+              isTrap: false,
+              headlineRate: 34.00,
+              transportCost: 3.50,
+              commissionCost: 0.00,
+              hamaliCost: 0.00,
+              spoilageCost: 0.00,
+              netRate: 30.50,
+              payment: '⚡ Instant 2-hr Aadhaar DBT',
+              escrow: '100% Bank Escrow Locked',
+              note: 'Direct institutional purchase with 0% Arhtiya deduction.'
+            },
+            {
+              id: 'DEST_LOCAL_MANDI',
+              name: 'Local Kolar APMC Market Yard',
+              distKm: '8.0 km',
+              badge: '⚠️ Traditional Mandi',
+              isBest: false,
+              isTrap: false,
+              headlineRate: 22.00,
+              transportCost: 1.40,
+              commissionCost: 1.76,
+              hamaliCost: 2.50,
+              spoilageCost: 0.38,
+              netRate: 15.96,
+              payment: '⏳ 15-45 Days Credit',
+              escrow: 'Zero Escrow',
+              note: '8.5% Commission and mechanical scale tare cuts consume margins.'
+            },
+            {
+              id: 'DEST_CITY_MANDI',
+              name: 'Bengaluru Wholesale Yard',
+              distKm: '58.0 km',
+              badge: '❌ DECEPTIVE TRAP',
+              isBest: false,
+              isTrap: true,
+              headlineRate: 28.00,
+              transportCost: 5.80,
+              commissionCost: 2.52,
+              hamaliCost: 3.00,
+              spoilageCost: 2.18,
+              netRate: 14.50,
+              payment: '⏳ 10-20 Days Credit',
+              escrow: 'Zero Escrow',
+              note: 'High headline rate wiped out by distance freight and unloading fees.'
+            }
+          ]
+        },
+        potato: {
+          mandiHeadline: 18.00,
+          mandiDeductions: { commission: 1.35, hamali: 2.00, weighTheft: 1.00, waste: 0.45 },
+          mandiNet: 13.20,
+          buyers: [
+            {
+              id: 'BUYER-02',
+              name: 'Royal Palace Hotels & Luxury Dining',
+              sub: 'Hospitality Bulk Partner',
+              icon: '🏨',
+              grade: 'Grade A Chipsona',
+              neededKg: 600,
+              grossRate: 26.50,
+              netTakeHome: 23.80,
+              netFarmerTakeHome: 23.80,
+              pickup: 'Chilled Insulated Carrier (₹2.70/kg)',
+              escrowBank: 'SBI Escrow',
+              escrowLocked: 15900,
+              rating: 4.9,
+              isBest: true,
+              badge: i18n.get('bestTakeHomeBadge')
+            },
+            {
+              id: 'BUYER-01',
+              name: 'FreshMart Hypermarkets',
+              sub: 'Supermarket Chain',
+              icon: '🏬',
+              grade: 'Grade A Jyoti/Pukhraj',
+              neededKg: 1000,
+              grossRate: 25.00,
+              netTakeHome: 22.60,
+              netFarmerTakeHome: 22.60,
+              pickup: 'Farmgate EV Pickup (₹2.40/kg)',
+              escrowBank: 'ICICI Escrow',
+              escrowLocked: 25000,
+              rating: 4.9,
+              isBest: false,
+              badge: 'Verified Buyer'
+            },
+            {
+              id: 'BUYER-03',
+              name: 'Bengaluru Housing Societies Collective',
+              sub: 'Direct Group-Buy Hub',
+              icon: '🏢',
+              grade: 'Table Grade Large',
+              neededKg: 1400,
+              grossRate: 24.00,
+              netTakeHome: 21.70,
+              netFarmerTakeHome: 21.70,
+              pickup: 'Pooled Spoke Carrier (₹2.30/kg)',
+              escrowBank: 'Razorpay Escrow',
+              escrowLocked: 33600,
+              rating: 4.8,
+              isBest: false,
+              badge: 'Direct Pool'
+            },
+            {
+              id: 'BUYER-04',
+              name: 'CloudKitchen Processing Hub',
+              sub: 'Commercial Processing',
+              icon: '🍽️',
+              grade: 'Grade B Bulk',
+              neededKg: 1800,
+              grossRate: 22.00,
+              netTakeHome: 19.90,
+              netFarmerTakeHome: 19.90,
+              pickup: 'Bulk E-Loader (₹2.10/kg)',
+              escrowBank: 'HDFC Escrow',
+              escrowLocked: 39600,
+              rating: 4.7,
+              isBest: false,
+              badge: 'Bulk Order'
+            }
+          ],
+          destinations: [
+            {
+              id: 'DEST_FARMFLOW',
+              name: 'FarmFlow Solar Spoke (Kolar)',
+              distKm: '4.2 km',
+              badge: '🌟 BEST NET REALIZATION',
+              isBest: true,
+              isTrap: false,
+              headlineRate: 26.50,
+              transportCost: 2.70,
+              commissionCost: 0.00,
+              hamaliCost: 0.00,
+              spoilageCost: 0.00,
+              netRate: 23.80,
+              payment: '⚡ Instant 2-hr Aadhaar DBT',
+              escrow: '100% Bank Escrow Locked',
+              note: 'Zero tare theft. Certified digital weighbridge slip.'
+            },
+            {
+              id: 'DEST_LOCAL_MANDI',
+              name: 'Local Kolar APMC Market Yard',
+              distKm: '8.0 km',
+              badge: '⚠️ Traditional Mandi',
+              isBest: false,
+              isTrap: false,
+              headlineRate: 18.00,
+              transportCost: 1.20,
+              commissionCost: 1.35,
+              hamaliCost: 2.00,
+              spoilageCost: 0.25,
+              netRate: 13.20,
+              payment: '⏳ 15-45 Days Credit',
+              escrow: 'Zero Escrow',
+              note: 'Bag deductions and loading charges reduce net payout.'
+            },
+            {
+              id: 'DEST_CITY_MANDI',
+              name: 'Bengaluru Wholesale Yard',
+              distKm: '58.0 km',
+              badge: '❌ DECEPTIVE TRAP',
+              isBest: false,
+              isTrap: true,
+              headlineRate: 23.00,
+              transportCost: 5.20,
+              commissionCost: 2.07,
+              hamaliCost: 2.60,
+              spoilageCost: 0.93,
+              netRate: 12.20,
+              payment: '⏳ 10-20 Days Credit',
+              escrow: 'Zero Escrow',
+              note: 'Freight and toll costs eliminate headline price gains.'
+            }
+          ]
+        },
+        capsicum: {
+          mandiHeadline: 28.00,
+          mandiDeductions: { commission: 2.52, hamali: 3.00, weighTheft: 1.50, waste: 0.50 },
+          mandiNet: 20.48,
+          buyers: [
+            {
+              id: 'BUYER-02',
+              name: 'Royal Palace Hotels & Luxury Dining',
+              sub: 'Hospitality Partner',
+              icon: '🏨',
+              grade: 'Grade A+ Colored/Bell',
+              neededKg: 300,
+              grossRate: 44.00,
+              netTakeHome: 39.80,
+              netFarmerTakeHome: 39.80,
+              pickup: 'Chilled Insulated Van (₹4.20/kg)',
+              escrowBank: 'SBI Escrow',
+              escrowLocked: 13200,
+              rating: 4.9,
+              isBest: true,
+              badge: i18n.get('bestTakeHomeBadge')
+            },
+            {
+              id: 'BUYER-01',
+              name: 'FreshMart Hypermarkets',
+              sub: 'Supermarket Chain',
+              icon: '🏬',
+              grade: 'Grade A Green Blocky',
+              neededKg: 500,
+              grossRate: 42.00,
+              netTakeHome: 38.40,
+              netFarmerTakeHome: 38.40,
+              pickup: 'Farmgate Reefer Pickup (₹3.60/kg)',
+              escrowBank: 'ICICI Escrow',
+              escrowLocked: 21000,
+              rating: 4.9,
+              isBest: false,
+              badge: 'Verified Buyer'
+            },
+            {
+              id: 'BUYER-03',
+              name: 'Bengaluru Housing Societies Collective',
+              sub: 'Direct Consumer Pool',
+              icon: '🏢',
+              grade: 'Table Fresh Grade',
+              neededKg: 700,
+              grossRate: 40.00,
+              netTakeHome: 36.50,
+              netFarmerTakeHome: 36.50,
+              pickup: 'Pooled Village E-Loader (₹3.50/kg)',
+              escrowBank: 'Razorpay Escrow',
+              escrowLocked: 28000,
+              rating: 4.8,
+              isBest: false,
+              badge: 'Direct Pool'
+            },
+            {
+              id: 'BUYER-04',
+              name: 'CloudKitchen Processing Hub',
+              sub: 'Culinary Processing',
+              icon: '🍽️',
+              grade: 'Grade B Bulk',
+              neededKg: 600,
+              grossRate: 36.00,
+              netTakeHome: 32.80,
+              netFarmerTakeHome: 32.80,
+              pickup: 'Bulk E-Loader (₹3.20/kg)',
+              escrowBank: 'HDFC Escrow',
+              escrowLocked: 21600,
+              rating: 4.7,
+              isBest: false,
+              badge: 'Bulk Order'
+            }
+          ],
+          destinations: [
+            {
+              id: 'DEST_FARMFLOW',
+              name: 'FarmFlow Solar Spoke (Kolar)',
+              distKm: '4.2 km',
+              badge: '🌟 BEST NET REALIZATION',
+              isBest: true,
+              isTrap: false,
+              headlineRate: 44.00,
+              transportCost: 4.20,
+              commissionCost: 0.00,
+              hamaliCost: 0.00,
+              spoilageCost: 0.00,
+              netRate: 39.80,
+              payment: '⚡ Instant 2-hr Aadhaar DBT',
+              escrow: '100% Bank Escrow Locked',
+              note: 'Cold reefer transit maintains crunch; zero sun-damage cut.'
+            },
+            {
+              id: 'DEST_LOCAL_MANDI',
+              name: 'Local Kolar APMC Market Yard',
+              distKm: '8.0 km',
+              badge: '⚠️ Traditional Mandi',
+              isBest: false,
+              isTrap: false,
+              headlineRate: 28.00,
+              transportCost: 1.50,
+              commissionCost: 2.52,
+              hamaliCost: 3.00,
+              spoilageCost: 0.50,
+              netRate: 20.48,
+              payment: '⏳ 15-45 Days Credit',
+              escrow: 'Zero Escrow',
+              note: 'High vulnerability to crushing and Arhtiya fee cuts.'
+            },
+            {
+              id: 'DEST_CITY_MANDI',
+              name: 'Bengaluru Wholesale Yard',
+              distKm: '58.0 km',
+              badge: '❌ DECEPTIVE TRAP',
+              isBest: false,
+              isTrap: true,
+              headlineRate: 36.00,
+              transportCost: 6.20,
+              commissionCost: 3.24,
+              hamaliCost: 3.60,
+              spoilageCost: 4.16,
+              netRate: 18.80,
+              payment: '⏳ 10-20 Days Credit',
+              escrow: 'Zero Escrow',
+              note: 'Long highway transit wilts capsicum; net payout drops below local yard.'
+            }
+          ]
+        }
+      };
+
+      const dataset = marketDatasets[crop] || marketDatasets.tomato;
+      const winner = dataset.buyers.find(b => b.isBest) || dataset.buyers[0];
+      const winnerNet = winner.netTakeHome || winner.netFarmerTakeHome || 24.20;
+      const extraGainPerKg = (winnerNet - dataset.mandiNet).toFixed(2);
+      const pctGain = (((winnerNet - dataset.mandiNet) / dataset.mandiNet) * 100).toFixed(0);
+      const totalDirect = Math.round(winnerNet * qty).toLocaleString('en-IN');
+      const totalMandi = Math.round(dataset.mandiNet * qty).toLocaleString('en-IN');
+      const totalDiff = Math.round((winnerNet - dataset.mandiNet) * qty).toLocaleString('en-IN');
+
+      let subViewContent = '';
+
+      if (subView === 'BUYERS') {
+        subViewContent = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div style="font-weight: 800; font-size: 1.05rem; color: var(--primary-900);">
+              ${isHi ? '🏬 4 सत्यापित खरीदार मांग बोर्ड (100% बैंक एस्क्रो सुरक्षित) vs पारंपरिक मंडी' : '🏬 4 Verified Direct Institutional Buyers (100% Escrow Secured) vs APMC Mandi'}
+            </div>
+            <span class="badge badge-success">✓ 100% Escrow Bank Backed</span>
+          </div>
+
+          <div class="comparable-cards-grid">
+            <!-- 1. TRADITIONAL APMC MANDI CARD (THE TRAP) -->
+            <div class="comp-buyer-card is-trap">
+              <div>
+                <div class="comp-buyer-head">
+                  <div>
+                    <span class="badge badge-danger">
+                      ${isHi ? 'पारंपरिक आढ़तिया मंडी' : 'Traditional APMC Mandi'}
+                    </span>
+                    <div class="comp-buyer-title" style="margin-top: 6px;">
+                      🏛️ Kolar APMC Market Yard
+                    </div>
+                    <div style="font-size: 0.75rem; color: #dc2626;">${isHi ? 'बिचौलिया कटौती एवं तौल चोरी' : 'Middleman Deductions & Tare Theft'}</div>
+                  </div>
+                  <div style="font-size: 0.8rem; font-weight: 700; color: #dc2626;">
+                    ★ 2.1
+                  </div>
+                </div>
+
+                <div class="comp-rate-badge" style="color: #dc2626;">
+                  ₹ ${dataset.mandiNet.toFixed(2)} <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">/ kg net</span>
+                </div>
+                <div style="font-size: 0.78rem; font-weight: 700; color: #dc2626;">
+                  Headline: ₹ ${dataset.mandiHeadline.toFixed(2)}/kg (-₹${(dataset.mandiHeadline - dataset.mandiNet).toFixed(2)} Lost in cuts)
+                </div>
+
+                <div class="comp-details-list">
+                  <div>🔴 <strong>Arhtiya Cut:</strong> 8.5% Statutory commission</div>
+                  <div>🔴 <strong>Tare Weight:</strong> 5.0% Unverified mechanical beam deduction</div>
+                  <div>🔴 <strong>Cartage & Hamali:</strong> ₹ 2.20 / kg loading fee</div>
+                  <div style="color: #dc2626;">⚠️ <strong>Payment:</strong> 15-45 Days Credit (Zero Escrow)</div>
+                </div>
+              </div>
+
+              <div style="margin-top: 14px;">
+                <button class="btn btn-secondary btn-sm" style="width: 100%; border-color: #fca5a5; color: #dc2626;" onclick="window.FF_APP.openMiddlemanBreakdownModal()">
+                  ⚠️ ${isHi ? 'मंडी कटौतियों का ब्योरा देखें' : 'View Mandi Deduction Details'}
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. DIRECT BUYERS CARDS -->
+            ${dataset.buyers.map(b => {
+              const netR = b.netTakeHome || b.netFarmerTakeHome || 0;
+              const totalPayout = Math.round(netR * qty).toLocaleString('en-IN');
+              return `
+                <div class="comp-buyer-card ${b.isBest ? 'is-recommended' : ''}">
+                  <div>
+                    <div class="comp-buyer-head">
+                      <div>
+                        <span class="badge ${b.isBest ? 'badge-success' : 'badge-info'}">
+                          ${b.badge}
+                        </span>
+                        <div class="comp-buyer-title" style="margin-top: 6px;">
+                          ${b.icon} ${b.name}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${b.sub}</div>
+                      </div>
+                      <div style="font-size: 0.82rem; font-weight: 700; color: #f59e0b;">
+                        ★ ${b.rating}
+                      </div>
+                    </div>
+
+                    <div class="comp-rate-badge">
+                      ₹ ${netR.toFixed(2)} <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">/ kg net</span>
+                    </div>
+                    <div style="font-size: 0.78rem; font-weight: 700; color: #15803d;">
+                      +₹ ${(netR - dataset.mandiNet).toFixed(2)}/kg (+${(((netR - dataset.mandiNet) / dataset.mandiNet) * 100).toFixed(0)}%) vs Mandi
+                    </div>
+
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #166534; margin: 4px 0 8px 0;">
+                      ${qty.toLocaleString()} kg Total: ₹ ${totalPayout}
+                    </div>
+
+                    <div class="comp-details-list">
+                      <div>📦 <strong>Demand Quota:</strong> ${b.neededKg.toLocaleString()} kg • ${b.grade}</div>
+                      <div>🚚 <strong>Logistics:</strong> ${b.pickup}</div>
+                      <div>💰 <strong>Gross Rate:</strong> ₹ ${b.grossRate.toFixed(2)}/kg</div>
+                      <div style="color: #0284c7;">🔒 <strong>Bank Escrow:</strong> ₹ ${b.escrowLocked.toLocaleString()} Locked (${b.escrowBank})</div>
+                    </div>
+                  </div>
+
+                  <div style="margin-top: 14px;">
+                    <button class="btn btn-primary btn-sm" style="width: 100%;" onclick="window.FF_APP.openSellModal('${cropMetadata[crop].name}', ${netR})">
+                      ✅ ${isHi ? `सौदा पक्का करें @ ₹${netR.toFixed(2)}` : `Lock Contract @ ₹${netR.toFixed(2)}/kg`}
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else if (subView === 'LOGISTICS') {
+        subViewContent = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <div style="font-weight: 800; font-size: 1.05rem; color: var(--primary-900);">
+                🗺️ ${isHi ? '"कहाँ बेचें?" 3 बाजारों का लॉजिस्टिक्स व शुद्ध बचत विश्लेषण' : '"Where Should I Sell?" 3 Market Route & Realization Advisor'}
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">
+                ${isHi ? 'दूरी, परिवहन खर्च, आढ़तिया कटौती और ट्रांजिट सड़न के बाद आपके बैंक में क्या पहुंचेगा:' : 'Real take-home after freight, middleman commissions, and road transit rot.'}
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="window.FF_LOGISTICS.openBookingModal()">
+              🚚 ${isHi ? 'खेत से गाड़ी बुक करें' : 'Book Reefer EV Pickup'}
+            </button>
+          </div>
+
+          <div class="dest-card-grid">
+            ${(dataset.destinations || []).map(d => {
+              const totalPayout = Math.round(d.netRate * qty).toLocaleString('en-IN');
+              return `
+                <div class="dest-card ${d.isBest ? 'is-recommended' : (d.isTrap ? 'is-trap' : '')}">
+                  <div>
+                    <div class="dest-head">
+                      <div>
+                        <span class="badge ${d.isBest ? 'badge-success' : (d.isTrap ? 'badge-danger' : 'badge-warning')}">
+                          ${d.badge}
+                        </span>
+                        <div class="dest-title" style="margin-top: 6px;">${d.name}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">📍 ${d.distKm}</div>
+                      </div>
+                    </div>
+
+                    <div class="dest-rates-box">
+                      <div class="dest-metric-row">
+                        <span>Headline Rate:</span>
+                        <strong>₹ ${d.headlineRate.toFixed(2)} / kg</strong>
+                      </div>
+                      <div class="dest-metric-row">
+                        <span>Transport Freight:</span>
+                        <span style="color: ${d.transportCost > 3 ? '#dc2626' : 'var(--text-main)'};">- ₹ ${d.transportCost.toFixed(2)} / kg</span>
+                      </div>
+                      <div class="dest-metric-row">
+                        <span>Arhtiya & Cuts:</span>
+                        <span style="color: ${d.commissionCost > 0 ? '#dc2626' : '#15803d'};">${d.commissionCost > 0 ? `- ₹ ${d.commissionCost.toFixed(2)} / kg` : '✓ ₹ 0.00 (0%)'}</span>
+                      </div>
+                      <div class="dest-metric-row">
+                        <span>Hamali & Spoilage:</span>
+                        <span style="color: ${d.spoilageCost > 0 ? '#dc2626' : '#15803d'};">${(d.hamaliCost + d.spoilageCost) > 0 ? `- ₹ ${(d.hamaliCost + d.spoilageCost).toFixed(2)} / kg` : '✓ 0% Spoilage'}</span>
+                      </div>
+                      <div class="dest-metric-row" style="margin-top: 6px; padding-top: 6px; border-top: 1.5px solid var(--border-light);">
+                        <span style="font-weight: 800; color: var(--primary-900);">Net In Your Bank:</span>
+                        <span class="dest-net-highlight" style="color: ${d.isBest ? '#15803d' : (d.isTrap ? '#dc2626' : 'var(--text-main)')};">
+                          ₹ ${d.netRate.toFixed(2)} / kg
+                        </span>
+                      </div>
+                      <div style="font-size: 0.82rem; font-weight: 800; color: ${d.isBest ? '#166534' : 'var(--text-muted)'}; text-align: right;">
+                        Total for ${qty.toLocaleString()} kg: ₹ ${totalPayout}
+                      </div>
+                    </div>
+
+                    <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px;">
+                      <strong>Advisory:</strong> ${d.note}
+                    </div>
+                  </div>
+
+                  <div style="margin-top: 10px;">
+                    ${d.isBest ? `
+                      <button class="btn btn-primary btn-sm btn-block" onclick="window.FF_APP.openSellModal('${cropMetadata[crop].name}', ${d.netRate})">
+                        🌾 ${isHi ? 'सर्वोत्तम स्पोक पर बेचें' : 'Sell to This Spoke @ ₹' + d.netRate.toFixed(2)}
+                      </button>
+                    ` : (d.isTrap ? `
+                      <button class="btn btn-secondary btn-sm btn-block" style="border-color: #fca5a5; color: #dc2626;" onclick="window.FF_APP.openMiddlemanBreakdownModal()">
+                        ⚠️ ${isHi ? 'धोखा कैसे होता है समझें' : 'Inspect City Mandi Spoilage Trap'}
+                      </button>
+                    ` : `
+                      <button class="btn btn-secondary btn-sm btn-block" onclick="window.FF_APP.openMiddlemanBreakdownModal()">
+                        ⚖️ ${isHi ? 'मंडी कटौती समझें' : 'Inspect Mandi Deductions'}
+                      </button>
+                    `)}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else if (subView === 'WATERFALL') {
+        subViewContent = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <div style="font-weight: 800; font-size: 1.05rem; color: var(--primary-900);">
+                ⚖️ ${isHi ? 'मंडी कटौती का विस्तृत ब्योरा vs फार्मफ्लो डायरेक्ट बचत' : 'Itemized APMC Mandi Deductions Waterfall vs FarmFlow Direct Net'}
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">
+                ${isHi ? 'देखें ₹16 का घोषित भाव घटकर कैसे मात्र ₹10.77 रह जाता है:' : 'See how a ₹16.00 headline mandi rate shrinks to only ₹10.77/kg in your pocket:'}
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="window.FF_APP.openMiddlemanBreakdownModal()">
+              🔍 ${isHi ? 'विस्तृत मॉडल' : 'Open Full Model'}
+            </button>
+          </div>
+
+          <div class="waterfall-card">
+            <table class="waterfall-table">
+              <thead>
+                <tr>
+                  <th>Cost Breakdown Factor</th>
+                  <th style="color: #dc2626;">Traditional APMC Mandi</th>
+                  <th style="color: #15803d;">FarmFlow Direct Ecosystem</th>
+                  <th style="color: #0284c7;">Farmer Advantage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Declared Headline Rate</strong></td>
+                  <td>₹ ${dataset.mandiHeadline.toFixed(2)} / kg</td>
+                  <td><strong>₹ ${winner.grossRate.toFixed(2)} / kg</strong></td>
+                  <td style="color: #15803d;"><strong>+₹ ${(winner.grossRate - dataset.mandiHeadline).toFixed(2)}/kg higher offer</strong></td>
+                </tr>
+                <tr>
+                  <td>Arhtiya Commission</td>
+                  <td style="color: #dc2626;">- ₹ ${dataset.mandiDeductions.commission.toFixed(2)} / kg (8.5%)</td>
+                  <td style="color: #15803d;">✓ ₹ 0.00 (0% Commission)</td>
+                  <td style="color: #15803d;">₹ ${dataset.mandiDeductions.commission.toFixed(2)}/kg saved</td>
+                </tr>
+                <tr>
+                  <td>Cartage & Hamali (Loading Fee)</td>
+                  <td style="color: #dc2626;">- ₹ ${dataset.mandiDeductions.hamali.toFixed(2)} / kg</td>
+                  <td style="color: #15803d;">✓ Free Spoke Crate Intake</td>
+                  <td style="color: #15803d;">₹ ${dataset.mandiDeductions.hamali.toFixed(2)}/kg saved</td>
+                </tr>
+                <tr>
+                  <td>Weighing Scale Loss (Tare Theft)</td>
+                  <td style="color: #dc2626;">- ₹ ${dataset.mandiDeductions.weighTheft.toFixed(2)} / kg (5% Unverified)</td>
+                  <td style="color: #15803d;">✓ 0 gm Theft (IoT Certified)</td>
+                  <td style="color: #15803d;">₹ ${dataset.mandiDeductions.weighTheft.toFixed(2)}/kg saved</td>
+                </tr>
+                <tr>
+                  <td>Sun Exposure Wilting & Spoilage</td>
+                  <td style="color: #dc2626;">- ₹ ${dataset.mandiDeductions.waste.toFixed(2)} / kg (3.5% Loss)</td>
+                  <td style="color: #15803d;">✓ Solar Pre-Cooling Chamber</td>
+                  <td style="color: #15803d;">0% Produce Dumped</td>
+                </tr>
+                <tr>
+                  <td>Reefer EV Transit Freight</td>
+                  <td style="color: #dc2626;">₹ 1.20/kg (Open Tractor)</td>
+                  <td>- ₹ 3.30 / kg (Insulated Cold Chain)</td>
+                  <td style="color: #0284c7;">Grade A+ Quality Preserved</td>
+                </tr>
+                <tr style="background: #f0fdf4;">
+                  <td><strong>FINAL NET CASH IN YOUR BANK</strong></td>
+                  <td style="color: #dc2626; font-size: 1.1rem; font-weight: 800;">₹ ${dataset.mandiNet.toFixed(2)} / kg</td>
+                  <td style="color: #15803d; font-size: 1.2rem; font-weight: 800;">₹ ${winnerNet.toFixed(2)} / kg</td>
+                  <td style="color: #15803d; font-size: 1.15rem; font-weight: 800;">+ ₹ ${extraGainPerKg} / kg (+${pctGain}%)</td>
+                </tr>
+                <tr style="background: #ffffff;">
+                  <td><strong>Payment Guarantee & Timeline</strong></td>
+                  <td style="color: #dc2626;">⏳ 15-45 Days Credit Note (Zero Escrow)</td>
+                  <td style="color: #15803d;">⚡ Instant 2-Hour Aadhaar DBT</td>
+                  <td style="color: #15803d;">100% Escrow Bank Deposit</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 5-STAGE MIDDLEMAN PRICE ESCALATION LADDER -->
+          <div style="margin-top: 24px;">
+            ${this.renderMiddlemanEscalationLadder()}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="unified-decision-wrap" id="unified-market-decision-section">
+          <!-- Header Row -->
+          <div class="unified-decision-header">
+            <div>
+              <div class="unified-decision-title">
+                <span>🎯</span>
+                <span>${i18n.get('unifiedMarketTitle')}</span>
+              </div>
+              <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 4px;">
+                ${i18n.get('unifiedMarketSub')}
+              </div>
+            </div>
+            <div class="crop-selector-pills">
+              <button class="crop-pill ${crop === 'tomato' ? 'active' : ''}" onclick="window.FF_APP.changeDecisionCrop('tomato', this)">🍅 ${isHi ? 'टमाटर' : 'Tomato'}</button>
+              <button class="crop-pill ${crop === 'onion' ? 'active' : ''}" onclick="window.FF_APP.changeDecisionCrop('onion', this)">🧅 ${isHi ? 'प्याज' : 'Onion'}</button>
+              <button class="crop-pill ${crop === 'potato' ? 'active' : ''}" onclick="window.FF_APP.changeDecisionCrop('potato', this)">🥔 ${isHi ? 'आलू' : 'Potato'}</button>
+              <button class="crop-pill ${crop === 'capsicum' ? 'active' : ''}" onclick="window.FF_APP.changeDecisionCrop('capsicum', this)">🫑 ${isHi ? 'शिमला मिर्च' : 'Capsicum'}</button>
+            </div>
+          </div>
+
+          <!-- Controls Row: Volume & Lot Presets -->
+          <div class="unified-controls-row">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary-900);">
+                ⚖️ ${isHi ? 'आपकी फसल मात्रा (किलो):' : 'Your Harvest Quantity:'}
+              </span>
+              <div class="btn-group">
+                <button class="btn btn-sm ${qty === 500 ? 'btn-primary' : 'btn-secondary'}" onclick="window.FF_APP.changeDecisionQty(500)">500 kg</button>
+                <button class="btn btn-sm ${qty === 1000 ? 'btn-primary' : 'btn-secondary'}" onclick="window.FF_APP.changeDecisionQty(1000)">1,000 kg</button>
+                <button class="btn btn-sm ${qty === 2500 ? 'btn-primary' : 'btn-secondary'}" onclick="window.FF_APP.changeDecisionQty(2500)">2,500 kg</button>
+              </div>
+            </div>
+            <div style="font-size: 0.82rem; color: #15803d; font-weight: 700;">
+              ✓ 100% Escrow Bank Backed • 0 gm Tare Theft Guarantee
+            </div>
+          </div>
+
+          <!-- HIGHEST NET TAKE-HOME WINNER HERO BANNER -->
+          <div class="unified-winner-banner">
+            <div class="winner-left">
+              <div class="winner-badge">🏆 ${isHi ? 'सर्वोत्तम शुद्ध भाव विजेता' : 'HIGHEST NET TAKE-HOME WINNER'}</div>
+              <h3 class="winner-title">${winner.icon} ${winner.name}</h3>
+              <div class="winner-sub">
+                ${isHi ?
+                  `स्थानीय मंडी के ₹${dataset.mandiNet.toFixed(2)}/kg के मुकाबले <strong>+₹ ${extraGainPerKg}/kg (+${pctGain}%)</strong> अधिक शुद्ध मुनाफा सीधे बैंक खाते में!` :
+                  `Earn an extra <strong>+₹ ${extraGainPerKg}/kg (+${pctGain}%)</strong> directly deposited into your bank account over local APMC Mandi!`
+                }
+              </div>
+              <div class="winner-chips">
+                <span>🔒 100% Escrow Secured</span>
+                <span>⚡ 0% Middleman Cut</span>
+                <span>⚖️ 0 gm Weighment Theft</span>
+                <span>🚚 Farmgate 15-min EV Pickup</span>
+              </div>
+            </div>
+
+            <div class="winner-right">
+              <div class="winner-rate-box">
+                <div class="rate-sub">${isHi ? 'आपका शुद्ध बैंक भुगतान' : 'Your Net Bank Take-Home'}</div>
+                <div class="rate-num">₹ ${winnerNet.toFixed(2)} <span class="rate-unit">/ kg</span></div>
+                <div class="rate-comp">${isHi ? 'स्थानीय मंडी नेट भाव: ' : 'Local APMC Mandi Net: '} <del>₹ ${dataset.mandiNet.toFixed(2)}/kg</del></div>
+              </div>
+              <div class="winner-total-box">
+                <div>${isHi ? `${qty.toLocaleString()} किलो पर कुल शुद्ध आय:` : `Total Net for ${qty.toLocaleString()} kg:`}</div>
+                <div class="winner-cash">₹ ${totalDirect}</div>
+                <div class="winner-diff">+₹ ${totalDiff} ${isHi ? 'अतिरिक्त नकदी' : 'Extra Cash in Bank'}</div>
+              </div>
+              <button class="btn btn-primary btn-block" style="margin-top: 10px; font-weight: 800;" onclick="window.FF_APP.openSellModal('${cropMetadata[crop].name}', ${winnerNet})">
+                🌾 ${isHi ? 'यह सौदा पक्का करें' : 'Select & Lock This Deal'}
+              </button>
+            </div>
+          </div>
+
+          <!-- INTEGRATED SUB-VIEW NAVIGATION TABS -->
+          <div class="unified-subview-tabs">
+            <button class="subview-tab ${subView === 'BUYERS' ? 'active' : ''}" onclick="window.FF_APP.changeDecisionSubView('BUYERS')">
+              <span>🏬</span>
+              <span>${isHi ? '१. 4 सीधे खरीदार व लाइव मांग बोर्ड' : '1. 4 Direct Institutional Buyers & Demands'}</span>
+            </button>
+            <button class="subview-tab ${subView === 'LOGISTICS' ? 'active' : ''}" onclick="window.FF_APP.changeDecisionSubView('LOGISTICS')">
+              <span>🗺️</span>
+              <span>${isHi ? '२. "कहाँ बेचें?" 3 बाजारों का लॉजिस्टिक्स विश्लेषण' : '2. "Where Should I Sell?" 3 Market Destinations'}</span>
+            </button>
+            <button class="subview-tab ${subView === 'WATERFALL' ? 'active' : ''}" onclick="window.FF_APP.changeDecisionSubView('WATERFALL')">
+              <span>⚖️</span>
+              <span>${isHi ? '३. मंडी कटौती व बिचौलिया मूल्य सीढ़ी' : '3. Mandi Deductions & Middleman Ladder'}</span>
+            </button>
+          </div>
+
+          <!-- DYNAMIC SUB-VIEW CONTENT -->
+          <div class="unified-subview-container">
+            ${subViewContent}
+          </div>
+        </div>
+      `;
+    },
+
+    changeDecisionCrop(cropKey, btnEl) {
+      this.decisionCrop = cropKey;
+      const container = document.getElementById('unified-decision-container');
+      if (container) {
+        container.innerHTML = this.renderUnifiedMarketDecisionEngine(this.decisionCrop, this.decisionQty, this.decisionSubView);
+      }
+    },
+
+    changeDecisionQty(qtyKg) {
+      this.decisionQty = Number(qtyKg) || 1000;
+      const container = document.getElementById('unified-decision-container');
+      if (container) {
+        container.innerHTML = this.renderUnifiedMarketDecisionEngine(this.decisionCrop, this.decisionQty, this.decisionSubView);
+      }
+    },
+
+    changeDecisionSubView(subViewKey) {
+      this.decisionSubView = subViewKey || 'BUYERS';
+      const container = document.getElementById('unified-decision-container');
+      if (container) {
+        container.innerHTML = this.renderUnifiedMarketDecisionEngine(this.decisionCrop, this.decisionQty, this.decisionSubView);
+      }
+    },
+
     // ========================================================================
     // 2. CONSUMER FARM-TO-FORK E-COMMERCE STOREFRONT
     // ========================================================================
     renderConsumerView(container) {
+      const subTab = (window.FF_AUTH && window.FF_AUTH.activeSubTab) || 'PRIMARY';
+      if (window.FF_ROLE_VIEWS) {
+        window.FF_ROLE_VIEWS.renderConsumer(subTab, container);
+        return;
+      }
+      this.renderConsumerStoreCatalog(container);
+    },
+
+    renderConsumerStoreCatalog(container) {
       const selectedSocId = window.FF_STORE.selectedSocietyId || 'SOC-01';
       const cluster = (window.FF_DATA.consumerSocieties || []).find(s => s.id === selectedSocId) || window.FF_DATA.consumerSocieties[0];
       const progressPct = Math.min(100, Math.round((cluster.currentPoolKg / cluster.targetPoolKg) * 100));
@@ -822,8 +1847,18 @@
     // 3. LOGISTICS & ON-DEMAND FARM TRANSPORT (HERO SHOWCASE)
     // ========================================================================
     renderLogisticsView(container) {
+      const subTab = (window.FF_AUTH && window.FF_AUTH.activeSubTab) || 'PRIMARY';
+      if (window.FF_ROLE_VIEWS) {
+        window.FF_ROLE_VIEWS.renderLogistics(subTab, container);
+        return;
+      }
+
       const i18n = window.FF_I18N;
       const activeSub = window.FF_LOGISTICS.activeTab || 'CORRIDOR';
+      const activeAcc = window.FF_KYC ? window.FF_KYC.getActiveAccount() : null;
+      const isDriverAcc = activeAcc && (activeAcc.actorType === 'LOGISTICS_DRIVER' || activeAcc.actorType === 'LOGISTICS_FLEET');
+      const isPending = isDriverAcc && activeAcc.kycStatus === 'PENDING_REVIEW';
+      const isSuspended = isDriverAcc && activeAcc.kycStatus === 'SUSPENDED';
 
       container.innerHTML = `
         <!-- Logistics Hero Banner -->
@@ -835,6 +1870,42 @@
           <h1 class="store-hero-title">${i18n.get('logisticsTitle')}</h1>
           <p class="store-hero-desc">${i18n.get('logisticsSub')}</p>
         </div>
+
+        ${isPending ? `
+          <div class="gated-alert-banner" style="margin-bottom: 20px;">
+            <div class="gated-alert-icon">⏳</div>
+            <div class="gated-alert-body">
+              <div class="gated-alert-title">
+                <span>Transporter Partner Verification Pending (Read-Only Mode)</span>
+                <span class="kyc-status-pill kyc-pending">Pending Review</span>
+              </div>
+              <div class="gated-alert-desc">
+                Driving License and Vehicle RC format checks passed. In accordance with cold-chain transit quality standards, accepting farmgate pickup loads is gated until Admin approval. You have read-only access to corridor telemetries and cold simulation models.
+              </div>
+              <div class="gated-alert-actions">
+                <span style="font-size: 0.82rem; color: #b45309; font-weight: 600;">📋 Under Admin Review — You will be notified once approved.</span>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        ${isSuspended ? `
+          <div class="gated-alert-banner danger" style="margin-bottom: 20px;">
+            <div class="gated-alert-icon">⚠️</div>
+            <div class="gated-alert-body">
+              <div class="gated-alert-title">
+                <span>Transporter Account Suspended</span>
+                <span class="kyc-status-pill kyc-suspended">Suspended</span>
+              </div>
+              <div class="gated-alert-desc">
+                ${activeAcc.rejectionReason || 'Transit failure / customer complaint threshold breached. Fast containment activated to protect fresh produce from heat rot and transit spoilage.'} Load acceptance privileges are temporarily frozen.
+              </div>
+              <div class="gated-alert-actions">
+                <span style="font-size: 0.82rem; color: #9f1239; font-weight: 600;">⚠️ Account suspended — Contact operations support for reinstatement.</span>
+              </div>
+            </div>
+          </div>
+        ` : ''}
 
         <!-- 4 Sub-Tabs for Hero Logistics -->
         <div class="fpo-tabs-strip" style="margin-bottom: 24px;">
@@ -937,19 +2008,25 @@
         `;
       } else if (activeSub === 'PARTNER') {
         const loads = window.FF_DATA.partnerLoads;
+        const activeAcc = window.FF_KYC ? window.FF_KYC.getActiveAccount() : null;
+        const isDriverAcc = activeAcc && (activeAcc.actorType === 'LOGISTICS_DRIVER' || activeAcc.actorType === 'LOGISTICS_FLEET');
+        const isPending = isDriverAcc && activeAcc.kycStatus === 'PENDING_REVIEW';
+        const isSuspended = isDriverAcc && activeAcc.kycStatus === 'SUSPENDED';
+        const canAcceptTrips = !isPending && !isSuspended;
+
         return `
           <div class="partner-board-panel">
             <div class="partner-status-bar">
               <div>
                 <div style="font-size: 1.15rem; font-weight: 800;">${i18n.get('partnerDeskTitle')}</div>
                 <div id="driver-partner-status-text" style="font-size: 0.82rem; color: #94a3b8; margin-top: 2px;">
-                  ${window.FF_LOGISTICS.isDriverOnline ? '🟢 <strong>You are Online</strong> • Receiving harvest pickup requests nearby' : '🔴 <strong>You are Offline</strong>'}
+                  ${isSuspended ? '🔴 <strong>Account Suspended</strong> • Proactive freeze to prevent produce spoilage' : (isPending ? '⏳ <strong>Verification Pending</strong> • Read-only corridor access' : (window.FF_LOGISTICS.isDriverOnline ? '🟢 <strong>You are Online</strong> • Receiving harvest pickup requests nearby' : '🔴 <strong>You are Offline</strong>'))}
                 </div>
               </div>
               <div style="display: flex; gap: 10px; align-items: center;">
                 <span style="font-size: 0.85rem; color: #cbd5e1;">Today's Payout: <strong>₹ 1,850.00</strong></span>
-                <button id="btn-driver-status-toggle" class="btn btn-sm ${window.FF_LOGISTICS.isDriverOnline ? 'btn-secondary' : 'btn-primary'}" onclick="window.FF_LOGISTICS.toggleDriverOnline()">
-                  ${window.FF_LOGISTICS.isDriverOnline ? 'Go Offline' : 'Go Online'}
+                <button id="btn-driver-status-toggle" class="btn btn-sm ${window.FF_LOGISTICS.isDriverOnline ? 'btn-secondary' : 'btn-primary'} ${isSuspended ? 'gated-disabled' : ''}" ${isSuspended ? 'disabled' : ''} onclick="${isSuspended ? "window.FF_APP.showToast('⚠️ Suspended: Online dispatch blocked.', 'error')" : "window.FF_LOGISTICS.toggleDriverOnline()"}">
+                  ${isSuspended ? '⚠️ Suspended' : (window.FF_LOGISTICS.isDriverOnline ? 'Go Offline' : 'Go Online')}
                 </button>
               </div>
             </div>
@@ -979,8 +2056,8 @@
                     <span>Farmer: <strong>${load.farmerName}</strong></span>
                   </div>
 
-                  <button id="btn-accept-${load.id}" class="btn btn-sm ${load.status === 'ACCEPTED' ? 'btn-secondary' : 'btn-primary'}" ${load.status === 'ACCEPTED' ? 'disabled' : ''} onclick="window.FF_LOGISTICS.acceptPartnerLoad('${load.id}')">
-                    ${load.status === 'ACCEPTED' ? '✓ Trip Accepted' : i18n.get('acceptTripBtn')}
+                  <button id="btn-accept-${load.id}" class="btn btn-sm ${load.status === 'ACCEPTED' || !canAcceptTrips ? 'btn-secondary' : 'btn-primary'} ${!canAcceptTrips ? 'gated-disabled' : ''}" ${(load.status === 'ACCEPTED' || !canAcceptTrips) ? 'disabled' : ''} onclick="${!canAcceptTrips ? "window.FF_APP.showToast('🔒 Trip acceptance gated: Account verification or active status required.', 'warning')" : `window.FF_LOGISTICS.acceptPartnerLoad('${load.id}')`}">
+                    ${load.status === 'ACCEPTED' ? '✓ Trip Accepted' : (isSuspended ? '⚠️ Account Suspended' : (isPending ? '🔒 Verification Pending' : i18n.get('acceptTripBtn')))}
                   </button>
                 </div>
               `).join('')}
@@ -1333,11 +2410,67 @@
     // 4. FPO COOPERATIVE WORKBENCH (PRACTICAL NABARD/SFAC MODEL)
     // ========================================================================
     renderFPOView(container) {
-      const fpo = window.FF_DATA.fpoInfo;
+      const subTab = (window.FF_AUTH && window.FF_AUTH.activeSubTab) || 'PRIMARY';
+      if (window.FF_ROLE_VIEWS) {
+        window.FF_ROLE_VIEWS.renderFPO(subTab, container);
+        return;
+      }
+      this.renderFPOViewContent(container);
+    },
+
+    renderFPOViewContent(container) {
+      const activeAcc = window.FF_KYC ? window.FF_KYC.getActiveAccount() : null;
+      const isFpoAcc = activeAcc && activeAcc.actorType === 'FPO';
+      const fpo = isFpoAcc ? {
+        ...window.FF_DATA.fpoInfo,
+        name: activeAcc.name,
+        regNo: activeAcc.regNo || window.FF_DATA.fpoInfo.regNo,
+        totalMembers: activeAcc.memberCount || 242
+      } : window.FF_DATA.fpoInfo;
+      const isPending = isFpoAcc && activeAcc.kycStatus === 'PENDING_REVIEW';
+      const isRejected = isFpoAcc && activeAcc.kycStatus === 'REJECTED';
       const i18n = window.FF_I18N;
       const isHi = i18n.currentLang === 'hi';
 
       container.innerHTML = `
+        ${isPending ? `
+          <div class="gated-alert-banner" style="margin-bottom: 24px;">
+            <div class="gated-alert-icon">⏳</div>
+            <div class="gated-alert-body">
+              <div class="gated-alert-title">
+                <span>FPO Statutory Registration Under Admin Review (Read-Only Mode Active)</span>
+                <span class="kyc-status-pill kyc-pending">Pending Review</span>
+              </div>
+              <div class="gated-alert-desc">
+                Statutory registration (<strong>${fpo.regNo}</strong>) has passed format check. Because FPOs aggregate thousands of kilos and distribute large sums to smallholders, platform trust rules require manual Admin approval before write access is granted. <strong>You currently have read-only access to browse district forward demand forecasts and Mandi rates.</strong> Forward quota allocation, member harvest intake, and ledger payouts are gated until verified.
+              </div>
+              <div class="gated-alert-actions">
+                <span style="font-size: 0.82rem; color: #b45309; font-weight: 600;">📋 Under Admin Review — Write access will be enabled once approved.</span>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        ${isRejected ? `
+          <div class="gated-alert-banner danger" style="margin-bottom: 24px;">
+            <div class="gated-alert-icon">✕</div>
+            <div class="gated-alert-body">
+              <div class="gated-alert-title">
+                <span>FPO Registration Rejected</span>
+                <span class="kyc-status-pill kyc-rejected">Rejected</span>
+              </div>
+              <div class="gated-alert-desc">
+                Adverse Action Reason: <strong>${activeAcc.rejectionReason || 'Statutory documentation discrepancy.'}</strong> You may resubmit your registration with corrected MCA documentation.
+              </div>
+              <div class="gated-alert-actions">
+                <button class="btn btn-sm btn-primary" onclick="window.FF_KYC.openOnboardingWizard('FPO')">
+                  🔄 Resubmit FPO Registration
+                </button>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
         <div class="ff-card" style="margin-bottom: 28px;">
           <div class="ff-card-header">
             <div>
@@ -1345,9 +2478,9 @@
                 <span>🏢</span>
                 <span>${fpo.name}</span>
               </div>
-              <div class="ff-card-subtitle">${fpo.regNo} • ${isHi ? 'नाबार्ड समर्थित 242 किसान सदस्य' : 'NABARD & SFAC Supported • 242 Smallholder Farmer Members'}</div>
+              <div class="ff-card-subtitle">${fpo.regNo} • ${isHi ? `नाबार्ड समर्थित ${fpo.totalMembers} किसान सदस्य` : `NABARD & SFAC Supported • ${fpo.totalMembers} Smallholder Farmer Members`}</div>
             </div>
-            <span class="badge badge-success">COOPERATIVE ACTIVE</span>
+            ${isPending ? `<span class="kyc-status-pill kyc-pending">⏳ PENDING REVIEW (READ-ONLY)</span>` : (isRejected ? `<span class="kyc-status-pill kyc-rejected">✕ REJECTED</span>` : `<span class="badge badge-success">COOPERATIVE ACTIVE</span>`)}
           </div>
 
           <!-- 4 Real FPO Management Dials -->
@@ -1625,24 +2758,57 @@
     // 5. B2B BUYER PORTAL
     // ========================================================================
     renderBuyerView(container) {
+      const subTab = (window.FF_AUTH && window.FF_AUTH.activeSubTab) || 'PRIMARY';
+      if (window.FF_ROLE_VIEWS) {
+        window.FF_ROLE_VIEWS.renderBuyer(subTab, container);
+        return;
+      }
+
       const demands = window.FF_DATA.buyerDemands || [];
       const totalEscrow = demands.reduce((sum, d) => sum + d.escrowDepositRs, 0);
+      const activeAcc = window.FF_KYC ? window.FF_KYC.getActiveAccount() : null;
+      const isBuyerAcc = activeAcc && activeAcc.actorType === 'BUYER';
+      const isPending = isBuyerAcc && activeAcc.kycStatus === 'PENDING_REVIEW';
+      const isRejected = isBuyerAcc && activeAcc.kycStatus === 'REJECTED';
+      const buyerName = isBuyerAcc ? activeAcc.name : 'B2B Commercial Buyer Portal & Direct Procurement Desk';
+      const buyerGstin = isBuyerAcc ? (activeAcc.gstin || '29AABCU9603R1Z7') : '29AABCU9603R1Z7';
 
       container.innerHTML = `
+        ${isPending ? `
+          <div class="gated-alert-banner" style="margin-bottom: 24px;">
+            <div class="gated-alert-icon">⏳</div>
+            <div class="gated-alert-body">
+              <div class="gated-alert-title">
+                <span>B2B Commercial Buyer Under Admin Verification (Read-Only Mode Active)</span>
+                <span class="kyc-status-pill kyc-pending">Pending Review</span>
+              </div>
+              <div class="gated-alert-desc">
+                Your 15-character GSTIN (<strong>${buyerGstin}</strong>) has been validated for format and check digit. As bulk buyers transact in high-tonnage forward contracts with statutory tax invoicing and escrow obligations, accounts are gated until verified by Admin. <strong>You have read-only access to browse smallholder crop lots, variety quality assays, and mandi price indices</strong>. Forward procurement demand posting and escrow funding are gated until approved.
+              </div>
+              <div class="gated-alert-actions">
+                <span style="font-size: 0.82rem; color: #b45309; font-weight: 600;">📋 Under Admin Review — Procurement access will be enabled once verified.</span>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
         <div class="ff-card" style="margin-bottom: 28px;">
           <div class="ff-card-header">
             <div>
               <div class="ff-card-title">
                 <span>🏬</span>
-                <span>B2B Commercial Buyer Portal & Direct Procurement Desk</span>
+                <span>${buyerName}</span>
               </div>
               <div class="ff-card-subtitle">
-                Guaranteed quality farmgate sourcing, zero middleman markups, and 100% escrow-backed forward contracts.
+                GSTIN: ${buyerGstin} • Guaranteed quality farmgate sourcing, zero middleman markups, and 100% escrow-backed forward contracts.
               </div>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="window.FF_APP.openPostDemandModal()">
-              + Post New Procurement Demand
-            </button>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              ${isPending ? `<span class="kyc-status-pill kyc-pending">⏳ PENDING REVIEW (READ-ONLY)</span>` : (isRejected ? `<span class="kyc-status-pill kyc-rejected">✕ REJECTED</span>` : `<span class="badge badge-success">VERIFIED BUYER</span>`)}
+              <button class="btn btn-primary btn-sm ${isPending ? 'gated-disabled' : ''}" onclick="${isPending ? "window.FF_APP.showToast('🔒 Gated Action: GSTIN verification is pending Admin approval. Demands cannot be posted in read-only mode.', 'warning')" : "window.FF_APP.openPostDemandModal()"}" title="${isPending ? 'Verification Required' : ''}">
+                + Post New Procurement Demand
+              </button>
+            </div>
           </div>
 
           <div class="grid-3" style="margin-bottom: 24px;">
@@ -1753,6 +2919,15 @@
     // 6. OPERATIONS CONTROL TOWER & SYSTEM ARCHITECTURE (ADMIN)
     // ========================================================================
     renderAdminView(container) {
+      const subTab = (window.FF_AUTH && window.FF_AUTH.activeSubTab) || 'PRIMARY';
+      if (window.FF_ROLE_VIEWS) {
+        window.FF_ROLE_VIEWS.renderAdmin(subTab, container);
+        return;
+      }
+      this.renderAdminViewContent(container);
+    },
+
+    renderAdminViewContent(container) {
       const i18n = window.FF_I18N;
 
       container.innerHTML = `
@@ -1789,6 +2964,9 @@
             </div>
           </div>
         </div>
+
+        <!-- KYC & ASYMMETRIC VERIFICATION COMPLIANCE DESK -->
+        ${this.renderAdminKYCDesk()}
 
         <!-- SECTION: Where Does Your Rupee Go? Interactive Comparison -->
         <div class="rupee-breakdown-box">
@@ -2841,6 +4019,270 @@
     scrollToId(id) {
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+
+    adminKycFilter: 'ALL',
+
+    setKycFilter(filter) {
+      this.adminKycFilter = filter;
+      const container = document.getElementById('main-workspace');
+      if (container && this.activeRole === 'ADMIN') {
+        this.renderAdminView(container);
+      }
+    },
+
+    renderAdminKYCDesk() {
+      const kyc = window.FF_KYC;
+      if (!kyc) return '';
+
+      const accounts = kyc.accounts || [];
+      const totalCount = accounts.length;
+      const verifiedCount = accounts.filter(a => a.kycStatus === 'VERIFIED').length;
+      const pendingCount = accounts.filter(a => a.kycStatus === 'PENDING_REVIEW').length;
+      const alertCount = accounts.filter(a => a.kycStatus === 'SUSPENDED' || a.kycStatus === 'FLAGGED_COLLISION' || a.kycStatus === 'REJECTED').length;
+
+      const activeFilter = this.adminKycFilter || 'ALL';
+      const filteredAccounts = accounts.filter(a => {
+        if (activeFilter === 'PENDING') return a.kycStatus === 'PENDING_REVIEW';
+        if (activeFilter === 'FLAGGED') return a.kycStatus === 'SUSPENDED' || a.kycStatus === 'FLAGGED_COLLISION' || a.kycStatus === 'REJECTED';
+        if (activeFilter === 'VERIFIED') return a.kycStatus === 'VERIFIED';
+        return true;
+      });
+
+      return `
+        <!-- KYC & VERIFICATION COMPLIANCE DESK -->
+        <div class="admin-kyc-desk-wrap">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid var(--border-light); padding-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.5rem;">🛡️</span>
+                <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--primary-900); margin: 0;">
+                  Stakeholder KYC & Asymmetric Verification Compliance Desk
+                </h2>
+                <span class="badge badge-success">SIH PS33 TRUST ENGINE</span>
+              </div>
+              <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 4px;">
+                Onboard each actor type with the right level of verification for the fraud/trust risk they actually pose — not uniform KYC for everyone.
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary btn-sm" onclick="window.FF_KYC.openAccountSwitcherModal()">
+                👤 Switch Stakeholder Persona
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="window.FF_KYC.openOnboardingWizard()">
+                + Onboard New Actor
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 Executive KYC Counters -->
+          <div class="kyc-summary-counters">
+            <div class="kyc-counter-card">
+              <div class="kyc-counter-val" style="color: var(--primary-900);">${totalCount}</div>
+              <div class="kyc-counter-lbl">Total Registered Stakeholders</div>
+            </div>
+            <div class="kyc-counter-card" style="border-left: 4px solid #16a34a;">
+              <div class="kyc-counter-val" style="color: #16a34a;">${verifiedCount}</div>
+              <div class="kyc-counter-lbl">Verified & Active Accounts</div>
+            </div>
+            <div class="kyc-counter-card" style="border-left: 4px solid #d97706;">
+              <div class="kyc-counter-val" style="color: #d97706;">${pendingCount}</div>
+              <div class="kyc-counter-lbl">Pending Admin Review Queue</div>
+            </div>
+            <div class="kyc-counter-card" style="border-left: 4px solid #dc2626;">
+              <div class="kyc-counter-val" style="color: #dc2626;">${alertCount}</div>
+              <div class="kyc-counter-lbl">Suspended & Collision Flags</div>
+            </div>
+          </div>
+
+          <!-- Asymmetric Verification Matrix Visualizer -->
+          <div style="margin-bottom: 24px;">
+            <div style="font-size: 0.95rem; font-weight: 800; color: var(--primary-900); margin-bottom: 6px;">
+              ⚖️ Verification Asymmetry Matrix (Deliberate Design Principle):
+            </div>
+            <div class="asymmetry-matrix-grid">
+              <div class="asymmetry-card sellers">
+                <div class="asymmetry-card-head">
+                  <span>🌾</span>
+                  <span style="color: #166534;">Sellers (Farmer & FPO)</span>
+                </div>
+                <div class="asymmetry-card-risk" style="color: #b91c1c;">
+                  Fraud Risk: Heavy (Fake / Ghost Lots)
+                </div>
+                <div class="asymmetry-card-rules">
+                  • <strong>Farmer:</strong> Verhoeff algorithm Aadhaar checksum + DPDP Act 2023 tokenization + GPS farm coordinates. Starts neutral (50/100) with visible "New Seller" badge.<br>
+                  • <strong>FPO:</strong> MCA CIN or Cooperative Society statutory check + mandatory Admin approval.<br>
+                  • <strong>Gating:</strong> Read-only until verified.
+                </div>
+              </div>
+
+              <div class="asymmetry-card buyers">
+                <div class="asymmetry-card-head">
+                  <span>🛒</span>
+                  <span style="color: #1e40af;">Buyers (Consumer & Bulk B2B)</span>
+                </div>
+                <div class="asymmetry-card-risk" style="color: #15803d;">
+                  Fraud Risk: Light (Payment Handled)
+                </div>
+                <div class="asymmetry-card-rules">
+                  • <strong>Consumer:</strong> Phone OTP only, no ID proof. Payment gateway absorbs payment failure risk.<br>
+                  • <strong>Bulk Buyer:</strong> 15-char GSTIN checksum check + 100% upfront escrow deposit (credit cycles deferred). Admin verification gate to protect large forward contracts.
+                </div>
+              </div>
+
+              <div class="asymmetry-card logistics">
+                <div class="asymmetry-card-head">
+                  <span>🚚</span>
+                  <span style="color: #6b21a8;">Logistics (Transporters)</span>
+                </div>
+                <div class="asymmetry-card-risk" style="color: #b45309;">
+                  Fraud Risk: Asset & Spoilage SLA
+                </div>
+                <div class="asymmetry-card-rules">
+                  • <strong>Individual Driver:</strong> State RTO Driving License format check + Vehicle RC capacity.<br>
+                  • <strong>Fleet Aggregator:</strong> GSTIN + fleet capacity + API telemetry.<br>
+                  • <strong>Fast Containment:</strong> Features auto-suspension trigger if delivery failures/damage exceed threshold.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Queue Filter Tabs -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-sm ${activeFilter === 'ALL' ? 'btn-primary' : 'btn-secondary'}" onclick="window.FF_APP.setKycFilter('ALL')">
+                All Stakeholders (${totalCount})
+              </button>
+              <button class="btn btn-sm ${activeFilter === 'PENDING' ? 'btn-primary' : 'btn-secondary'}" onclick="window.FF_APP.setKycFilter('PENDING')">
+                ⏳ Pending Review (${pendingCount})
+              </button>
+              <button class="btn btn-sm ${activeFilter === 'FLAGGED' ? 'btn-primary' : 'btn-secondary'}" onclick="window.FF_APP.setKycFilter('FLAGGED')">
+                ⚠️ Flagged / Suspended (${alertCount})
+              </button>
+              <button class="btn btn-sm ${activeFilter === 'VERIFIED' ? 'btn-primary' : 'btn-secondary'}" onclick="window.FF_APP.setKycFilter('VERIFIED')">
+                ✓ Verified (${verifiedCount})
+              </button>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">
+              Showing <strong>${filteredAccounts.length}</strong> matching records
+            </div>
+          </div>
+
+          <!-- KYC Table -->
+          <div class="kyc-table-responsive">
+            <table class="kyc-table">
+              <thead>
+                <tr>
+                  <th>Stakeholder Entity</th>
+                  <th>Actor Type</th>
+                  <th>Phone / Auth</th>
+                  <th>Statutory Identifier & Verification</th>
+                  <th>Trust Score</th>
+                  <th>KYC Status</th>
+                  <th>Operations Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filteredAccounts.map(acc => {
+                  let icon = '🌾';
+                  if (acc.actorType === 'FPO') icon = '🏢';
+                  else if (acc.actorType === 'CONSUMER') icon = '🛒';
+                  else if (acc.actorType === 'BUYER') icon = '🏬';
+                  else if (acc.actorType === 'LOGISTICS_DRIVER') icon = '🚚';
+                  else if (acc.actorType === 'LOGISTICS_FLEET') icon = '🚛';
+                  else if (acc.actorType === 'ADMIN') icon = '📊';
+
+                  let statusBadge = `<span class="kyc-status-pill kyc-verified">Verified</span>`;
+                  if (acc.kycStatus === 'PENDING_REVIEW') statusBadge = `<span class="kyc-status-pill kyc-pending">Pending Review</span>`;
+                  else if (acc.kycStatus === 'SUSPENDED') statusBadge = `<span class="kyc-status-pill kyc-suspended">Suspended</span>`;
+                  else if (acc.kycStatus === 'REJECTED') statusBadge = `<span class="kyc-status-pill kyc-rejected">Rejected</span>`;
+                  else if (acc.kycStatus === 'FLAGGED_COLLISION') statusBadge = `<span class="kyc-status-pill kyc-flagged">Flagged Collision</span>`;
+
+                  let idSnippet = '—';
+                  if (acc.aadhaarMasked) {
+                    idSnippet = `<div>${acc.aadhaarMasked}</div><div style="font-size: 0.72rem; color: #16a34a;">✓ Verhoeff Valid • DPDP Tokenized</div>`;
+                  } else if (acc.regNo) {
+                    idSnippet = `<div>${acc.regNo}</div><div style="font-size: 0.72rem; color: #0284c7;">✓ MCA Format Check</div>`;
+                  } else if (acc.gstin) {
+                    idSnippet = `<div>GSTIN: ${acc.gstin}</div><div style="font-size: 0.72rem; color: #16a34a;">✓ 15-char Checksum Match</div>`;
+                  } else if (acc.dlNumber) {
+                    idSnippet = `<div>DL: ${acc.dlNumber}</div><div style="font-size: 0.72rem; color: var(--text-muted);">RC: ${acc.rcNumber || 'Pending'}</div>`;
+                  } else if (acc.actorType === 'CONSUMER') {
+                    idSnippet = `<span style="font-size: 0.75rem; color: #15803d;">Minimal KYC (Phone OTP Verified)</span>`;
+                  } else if (acc.actorType === 'ADMIN') {
+                    idSnippet = `<span style="font-size: 0.75rem; color: #64748b;">Provisioned in DB (Immutable)</span>`;
+                  }
+
+                  return `
+                    <tr>
+                      <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <span style="font-size: 1.2rem;">${icon}</span>
+                          <div>
+                            <strong style="color: var(--primary-900);">${acc.name}</strong>
+                            <div style="font-size: 0.72rem; color: var(--text-muted);">${acc.id}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span style="font-size: 0.82rem; font-weight: 700;">${acc.actorType}</span></td>
+                      <td>
+                        <div>${acc.phone}</div>
+                        ${kyc.getAccountsByPhone(acc.phone).length > 1 ? '<span style="font-size: 0.7rem; color: #059669; font-weight: 700;">● Multi-Role Phone</span>' : ''}
+                      </td>
+                      <td>${idSnippet}</td>
+                      <td>
+                        <strong>${acc.trustScore}/100</strong>
+                        ${acc.trustScore <= 70 && acc.actorType === 'FARMER' ? '<div><span class="new-seller-badge">🌱 New Seller</span></div>' : ''}
+                      </td>
+                      <td>${statusBadge}</td>
+                      <td>
+                        <div class="kyc-action-btns">
+                          ${acc.kycStatus === 'PENDING_REVIEW' ? `
+                            <button class="btn-kyc-action btn-kyc-approve" onclick="window.FF_KYC.adminApproveAccount('${acc.id}')">✓ Approve</button>
+                            <button class="btn-kyc-action btn-kyc-reject" onclick="window.FF_KYC.adminRejectAccount('${acc.id}')">✕ Reject</button>
+                          ` : ''}
+                          ${acc.kycStatus === 'FLAGGED_COLLISION' ? `
+                            <button class="btn-kyc-action btn-kyc-approve" onclick="window.FF_KYC.adminApproveAccount('${acc.id}')">✓ Clear & Approve</button>
+                            <button class="btn-kyc-action btn-kyc-reject" onclick="window.FF_KYC.adminRejectAccount('${acc.id}')">✕ Reject Collision</button>
+                          ` : ''}
+                          ${acc.kycStatus === 'SUSPENDED' ? `
+                            <button class="btn-kyc-action btn-kyc-approve" onclick="window.FF_KYC.adminReinstateAccount('${acc.id}')">✓ Reinstate</button>
+                          ` : ''}
+                          ${acc.kycStatus === 'VERIFIED' && acc.actorType !== 'ADMIN' ? `
+                            <button class="btn-kyc-action btn-kyc-suspend" onclick="window.FF_KYC.adminSuspendAccount('${acc.id}')">⚠️ Suspend</button>
+                          ` : ''}
+                          <button class="btn-kyc-action btn-kyc-inspect" onclick="window.FF_KYC.adminInspectAccount('${acc.id}')">🔍 Inspect</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Exception & Collision Simulation Tray for Presentation -->
+          <div style="margin-top: 24px; border-top: 1px solid var(--border-light); padding-top: 18px;">
+            <div style="font-size: 0.95rem; font-weight: 800; color: var(--primary-900); margin-bottom: 4px;">
+              🚨 Live Hackathon Demo: Test Exception & Collision Mitigations
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;">
+              Simulate fraud/trust edge cases specified in the architecture to verify system responses:
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="window.FF_KYC.simulateCollisionScenario('AADHAAR_PHONE_COLLISION')">
+                ⚡ Test Aadhaar Phone Collision Flag
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="window.FF_KYC.simulateCollisionScenario('DUPLICATE_RC')">
+                ⚡ Test Duplicate Vehicle RC Rejection
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="window.FF_KYC.simulateCollisionScenario('DUPLICATE_CIN')">
+                ⚡ Test Duplicate FPO CIN Rejection
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
     }
   };
 

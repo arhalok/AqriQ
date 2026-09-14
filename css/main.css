@@ -293,6 +293,23 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
 }
 
+.role-tabs-bar::-webkit-scrollbar {
+  height: 5px;
+}
+
+.role-tabs-bar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.role-tabs-bar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.role-tabs-bar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 .role-tabs-container {
   max-width: 1440px;
   margin: 0 auto;
@@ -309,7 +326,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #334155;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -318,14 +335,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .role-tab:hover {
-  color: var(--primary-700);
-  background: var(--primary-50);
+  color: #15803d;
+  background: #f0fdf4;
 }
 
 .role-tab.active {
-  color: var(--primary-800);
-  border-bottom-color: var(--primary-600);
-  background: var(--primary-50);
+  color: #15803d;
+  font-weight: 700;
+  border-bottom-color: #16a34a;
+  background: #f0fdf4;
 }
 
 .role-tab .badge {
@@ -338,7 +356,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .role-tab.active .badge {
-  background: var(--primary-600);
+  background: #16a34a;
   color: #ffffff;
 }
 

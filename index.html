@@ -18,44 +18,34 @@
   <link rel="stylesheet" href="css/ecommerce.css">
   <link rel="stylesheet" href="css/logistics-hero.css">
   <link rel="stylesheet" href="css/judge-mode.css">
+  <link rel="stylesheet" href="css/onboarding.css">
+  <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
 
-  <!-- Top Enterprise Operations Ribbon -->
-  <div class="sih-judge-ribbon network-admin-ribbon">
-    <div class="sih-ribbon-left">
-      <span class="sih-tag admin-tag">ADMIN</span>
-      <span data-i18n="ribbonText">Enterprise Supply Chain Coordination Network • Active Corridors • 100% Escrow Backed</span>
-    </div>
-    <div class="sih-ribbon-right">
-      <button class="sih-pitch-btn" onclick="window.FF_APP.runPracticalDemoModal(1)" style="background: #f59e0b; color: #1e1b4b; font-weight: 800; margin-right: 8px; border: none; cursor: pointer; border-radius: var(--radius-pill); padding: 6px 14px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
-        <span>🎬</span>
-        <span>Live 5-Stage Demo (खेत से DBT)</span>
-      </button>
-      <button class="sih-pitch-btn admin-pitch-btn" id="btn-admin-pitch" onclick="window.FF_APP.switchRole('ADMIN')" data-i18n="ribbonBtn">
-        📊 Operations Control Tower (Admin)
-      </button>
-    </div>
-  </div>
+
 
   <!-- Main Application Header -->
   <header class="app-header">
     <div class="header-container">
-      <a class="brand-wrapper" onclick="window.FF_APP.switchRole('FARMER')">
+      <a class="brand-wrapper" onclick="window.FF_AUTH && window.FF_AUTH.isLoggedIn ? window.FF_APP.renderCurrentView() : window.FF_AUTH.logout()">
         <div class="brand-logo-badge">🌾</div>
         <div class="brand-titles">
           <div class="brand-title">
             <span>FarmFlow</span>
             <span class="sub">Kisan</span>
-            <span class="badge" style="background: #1e3a8a; color: #fef08a; font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 999px; vertical-align: middle; margin-left: 6px; letter-spacing: 0.5px;">🏛️ e-NAM Spoke</span>
+            <span class="badge" style="background: #1e3a8a; color: #fef08a; font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 999px; vertical-align: middle; margin-left: 6px; letter-spacing: 0.5px;">🏛️ E-NAM SPOKE</span>
           </div>
           <div class="brand-subtitle" data-i18n="appSub">
-            Demand-Driven Agri-Supply Chain & Intermediary Elimination
+            Demand-Driven Agri-Supply Chain & Direct Coordination Network
           </div>
         </div>
       </a>
 
       <div class="header-actions">
+        <!-- Logged-in user info + logout injected dynamically by js/auth.js -->
+        <div id="auth-header-controls" style="display: none;"></div>
+
         <!-- 3-Language Switcher (Farmer Accessibility) -->
         <div class="lang-selector-wrap">
           <span class="lang-icon">🌐</span>
@@ -66,49 +56,19 @@
           </select>
         </div>
 
-        <!-- Voice Assistant Pill ("Kisan Vani") -->
-        <button class="kisan-vani-btn" id="btn-kisan-vani" title="Listen to today's market rates and farm advisory in audio">
-          <span>🔊</span>
+        <!-- Voice Assistant Pill ("Kisan Vani") — shown only for Farmer role via auth engine -->
+        <button class="kisan-vani-btn" id="btn-kisan-vani" title="Listen to today's market rates and farm advisory in audio" style="display: none;">
+          <span>🎙️</span>
           <span data-i18n="voiceBtn">Kisan Vani (Audio Advisory)</span>
         </button>
       </div>
+
     </div>
   </header>
 
-  <!-- Role Switcher Tabs Bar -->
-  <nav class="role-tabs-bar" aria-label="Stakeholder Portals">
-    <div class="role-tabs-container">
-      <button class="role-tab active" data-role="FARMER">
-        <span>🌾</span>
-        <span data-i18n="navFarmer">Farmer Portal (किसान)</span>
-        <span class="badge">Primary UI</span>
-      </button>
-      <button class="role-tab" data-role="CONSUMER">
-        <span>🛒</span>
-        <span data-i18n="navConsumer">Consumer Store (उपभोक्ता)</span>
-        <span class="badge" style="background: #16a34a; color: #fff;">Farm Fresh</span>
-      </button>
-      <button class="role-tab" data-role="LOGISTICS">
-        <span>🚚</span>
-        <span data-i18n="navLogistics">Reefer Fleet & Logistics</span>
-        <span class="badge" style="background: #0284c7; color: #fff;">HERO LOGISTICS</span>
-      </button>
-      <button class="role-tab" data-role="FPO">
-        <span>🏢</span>
-        <span data-i18n="navFPO">FPO Aggregation (सहकारी)</span>
-        <span class="badge">242 Members</span>
-      </button>
-      <button class="role-tab" data-role="BUYER">
-        <span>🏬</span>
-        <span data-i18n="navBuyer">B2B Buyer (थोक खरीदार)</span>
-        <span class="badge">1,500 kg</span>
-      </button>
-      <button class="role-tab" data-role="ADMIN">
-        <span>📊</span>
-        <span data-i18n="navAdmin">Operations Control Tower</span>
-        <span class="badge" style="background: #0f766e; color: #fff;">LIVE OPS</span>
-      </button>
-    </div>
+  <!-- Contextual Role-Isolated Sub-Navigation Bar (Shown only when logged in) -->
+  <nav class="role-subnav-bar" id="role-subnav-bar" aria-label="Stakeholder Sub-Services" style="display: none;">
+    <!-- Rendered dynamically by js/auth.js based on authenticated role -->
   </nav>
 
   <!-- Dynamic Active Workspace -->
@@ -156,15 +116,15 @@
       <div class="footer-brand">
         <span style="font-size: 1.5rem;">🌾</span>
         <div>
-          <div style="font-weight: 700; color: #ffffff;">FarmFlow Kisan • Demand-Driven Agricultural Supply Chain Platform</div>
-          <div class="footer-text">Built to eliminate agricultural intermediaries and deliver transparent fair prices to farmers and consumers.</div>
+          <div style="font-weight: 700; color: #ffffff;">FarmFlow Kisan • Operational Agricultural Supply Chain</div>
+          <div class="footer-text">SIH Problem Statement 33 • Direct Farm-to-Buyer Execution Matrix</div>
         </div>
       </div>
       <div class="footer-links">
-        <a href="javascript:void(0)" onclick="window.FF_APP.switchRole('ADMIN')">📊 Operations Control Tower</a>
-        <a href="javascript:void(0)" onclick="window.FF_APP.switchRole('LOGISTICS')">🚚 Reefer Fleet & Corridor</a>
-        <a href="javascript:void(0)" onclick="window.FF_APP.switchRole('CONSUMER')">🛒 Farm-to-Fork Store</a>
-        <a href="javascript:void(0)" onclick="window.FF_APP.switchRole('FARMER')">🌾 Farmer Workbench</a>
+        <span>🏛️ e-NAM Extension Layer</span>
+        <span>🔒 100% Bank Escrow</span>
+        <span>📱 IoT Spoke Assaying</span>
+        <span>💰 2-Hour Aadhaar DBT</span>
       </div>
     </div>
   </footer>
@@ -178,6 +138,11 @@
   <script src="js/ecommerce.js"></script>
   <script src="js/logistics-hero.js"></script>
   <script src="js/supply-chain.js"></script>
+  <script src="js/onboarding.js"></script>
+  <script src="js/marketplace-bridge.js"></script>
+  <script src="js/farmer-workflow.js"></script>
+  <script src="js/role-views.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
